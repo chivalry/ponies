@@ -6,8 +6,6 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    MenuItem,
-    Select,
     Table,
     TableBody,
     TableCell,
@@ -17,26 +15,21 @@ import {
     Typography,
 } from '@mui/material'
 import { listHobbies, createHobby, deleteHobby, type Hobby } from '../api/hobbies'
-import { listPonies, type Pony } from '../api/ponies'
 
 export default function HobbyList() {
     const [hobbies, setHobbies] = useState<Hobby[]>([])
-    const [ponies, setPonies] = useState<Pony[]>([])
     const [open, setOpen] = useState(false)
     const [name, setName] = useState('')
-    const [ponyId, setPonyId] = useState<number | ''>('')
 
     useEffect(() => {
         listHobbies().then((r) => setHobbies(r.data))
-        listPonies().then((r) => setPonies(r.data))
     }, [])
 
     const handleCreate = async () => {
-        if (!name || !ponyId) return
-        const r = await createHobby({ name, pony_id: ponyId as number })
+        if (!name) return
+        const r = await createHobby({ name })
         setHobbies((prev) => [...prev, r.data])
         setName('')
-        setPonyId('')
         setOpen(false)
     }
 
@@ -44,8 +37,6 @@ export default function HobbyList() {
         await deleteHobby(id)
         setHobbies((prev) => prev.filter((h) => h.id !== id))
     }
-
-    const ponyName = (id: number) => ponies.find((p) => p.id === id)?.name ?? id
 
     return (
         <Box>
@@ -59,7 +50,6 @@ export default function HobbyList() {
                 <TableHead>
                     <TableRow>
                         <TableCell>Name</TableCell>
-                        <TableCell>Pony</TableCell>
                         <TableCell />
                     </TableRow>
                 </TableHead>
@@ -67,7 +57,6 @@ export default function HobbyList() {
                     {hobbies.map((h) => (
                         <TableRow key={h.id}>
                             <TableCell>{h.name}</TableCell>
-                            <TableCell>{ponyName(h.pony_id)}</TableCell>
                             <TableCell>
                                 <Button
                                     size="small"
@@ -93,19 +82,6 @@ export default function HobbyList() {
                         onChange={(e) => setName(e.target.value)}
                         fullWidth
                     />
-                    <Select
-                        value={ponyId}
-                        onChange={(e) => setPonyId(e.target.value as number)}
-                        displayEmpty
-                        fullWidth
-                    >
-                        <MenuItem value="">Select pony…</MenuItem>
-                        {ponies.map((p) => (
-                            <MenuItem key={p.id} value={p.id}>
-                                {p.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpen(false)}>Cancel</Button>

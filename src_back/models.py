@@ -24,7 +24,7 @@ class Pony(db.Model):
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
 
-    hobbies = db.relationship("Hobby", backref="pony", lazy=True)
+    pony_hobbies = db.relationship("PonyHobby", backref="pony", lazy=True)
     pony_friendships = db.relationship("PonyFriendship", backref="pony", lazy=True)
 
     def to_dict(self):
@@ -43,7 +43,6 @@ class Hobby(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), nullable=False)
-    pony_id = db.Column(db.Integer, db.ForeignKey("ponies.id"), nullable=False)
     uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
     created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
@@ -51,12 +50,12 @@ class Hobby(db.Model):
     )
 
     friendship_hobbies = db.relationship("FriendshipHobby", backref="hobby", lazy=True)
+    hobby_hobbies = db.relationship("PonyHobby", backref="hobby", lazy=True)
 
     def to_dict(self):
         return {
             "id": self.id,
             "name": self.name,
-            "pony_id": self.pony_id,
             "uuid": self.uuid,
             "created_timestamp": self.created_timestamp.isoformat(),
             "modified_timestamp": self.modified_timestamp.isoformat(),
@@ -103,6 +102,30 @@ class FriendshipHobby(db.Model):
         return {
             "id": self.id,
             "friendship_id": self.friendship_id,
+            "hobby_id": self.hobby_id,
+            "uuid": self.uuid,
+            "created_timestamp": self.created_timestamp.isoformat(),
+            "modified_timestamp": self.modified_timestamp.isoformat(),
+        }
+
+
+class PonyHobby(db.Model):
+    __tablename__ = "pony_hobbies"
+    __table_args__ = (db.UniqueConstraint("pony_id", "hobby_id"),)
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    pony_id = db.Column(db.Integer, db.ForeignKey("ponies.id"), nullable=False)
+    hobby_id = db.Column(db.Integer, db.ForeignKey("hobbies.id"), nullable=False)
+    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
+    modified_timestamp = db.Column(
+        db.DateTime, nullable=False, default=_now, onupdate=_now
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "pony_id": self.pony_id,
             "hobby_id": self.hobby_id,
             "uuid": self.uuid,
             "created_timestamp": self.created_timestamp.isoformat(),

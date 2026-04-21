@@ -12,6 +12,7 @@ from src_back.models import (
     Hobby,
     Pony,
     PonyFriendship,
+    PonyHobby,
 )
 
 bp = Blueprint("api", __name__, url_prefix="/api")
@@ -154,19 +155,15 @@ def delete_pony(id):
     return "", 204
 
 
-@bp.route("/ponies/<int:id>/hobbies/", methods=["POST"])
-def assign_hobby_to_pony(id):
+@bp.route("/ponies/<int:id>/hobbies/", methods=["GET"])
+def list_pony_hobbies(id):
     pony = Pony.query.get(id)
     if not pony:
         return _not_found("Pony", id)
-    data = request.get_json(silent=True) or {}
-    name = data.get("name")
-    if not name:
-        return _bad_request("name is required")
-    hobby = Hobby(name=name, pony_id=pony.id)
-    db.session.add(hobby)
-    db.session.commit()
-    return jsonify(hobby.to_dict()), 201
+    hobbies = (
+        Hobby.query.join(PonyHobby).filter(PonyHobby.pony_id == id).all()
+    )
+    return jsonify([h.to_dict() for h in hobbies])
 
 
 # ── Hobbies ───────────────────────────────────────────────────────────────────
@@ -182,14 +179,9 @@ def list_hobbies():
 def create_hobby():
     data = request.get_json(silent=True) or {}
     name = data.get("name")
-    pony_id = data.get("pony_id")
     if not name:
         return _bad_request("name is required")
-    if not pony_id:
-        return _bad_request("pony_id is required")
-    if not Pony.query.get(pony_id):
-        return _not_found("Pony", pony_id)
-    hobby = Hobby(name=name, pony_id=pony_id)
+    hobby = Hobby(name=name)
     db.session.add(hobby)
     db.session.commit()
     return jsonify(hobby.to_dict()), 201
@@ -391,5 +383,48 @@ def delete_pony_friendship(id):
     if not pf:
         return _not_found("PonyFriendship", id)
     db.session.delete(pf)
+    db.session.commit()
+    return "", 204
+
+
+# ── PonyHobbies ───────────────────────────────────────────────────────────────
+
+
+@bp.route("/pony_hobbies/", methods=["GET"])
+def list_pony_hobbies_all():
+    phs = PonyHobby.query.all()
+    return jsonify([ph.to_dict() for ph in phs])
+
+
+@bp.route("/pony_hobbies/", methods=["POST"])
+def create_pony_hobby():
+    data = request.get_json(silent=True) or {}
+    pony_id = data.get("pony_id")
+    hobby_id = data.get("hobby_id")
+    if not pony_id:
+        return _bad_request("pony_id is required")
+    if not hobby_id:
+        return _bad_request("hobby_id is required")
+    if not Pony.query.get(pony_id):
+        return _not_found("Pony", pony_id)
+    if not Hobby.query.get(hobby_id):
+        return _not_found("Hobby", hobby_id)
+    existing = PonyHobby.query.filter_by(
+        pony_id=pony_id, hobby_id=hobby_id
+    ).first()
+    if existing:
+        return jsonify({"error": "Hobby already assigned to this pony"}), 409
+    ph = PonyHobby(pony_id=pony_id, hobby_id=hobby_id)
+    db.session.add(ph)
+    db.session.commit()
+    return jsonify(ph.to_dict()), 201
+
+
+@bp.route("/pony_hobbies/<int:id>/", methods=["DELETE"])
+def delete_pony_hobby(id):
+    ph = PonyHobby.query.get(id)
+    if not ph:
+        return _not_found("PonyHobby", id)
+    db.session.delete(ph)
     db.session.commit()
     return "", 204
