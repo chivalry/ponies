@@ -8,6 +8,7 @@ export default defineConfig({
     setupFiles: ['src/test/setup.ts'],
   },
   root: 'src_front',
+  cacheDir: '../node_modules/.vite',
   build: {
     outDir: '../dist/public',
     emptyOutDir: true,
