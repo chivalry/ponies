@@ -250,7 +250,12 @@ moving on to the next step.
 
 - End-to-end test: create ponies, assign hobbies, create friendships
 - Lint all code, ensure no lines >90 chars
-- Build Docker images, run with docker-compose
+- Build Docker images and run the **full stack** with
+  `docker-compose up --build`
+  - Verify all three services start without errors (`docker-compose logs`)
+  - Confirm the backend reaches the DB (`flask db upgrade` succeeds in logs)
+  - Confirm the frontend proxy reaches the backend (no `ENOTFOUND` errors)
+  - Open `http://localhost:5173` and exercise the UI end-to-end
 
 ---
 
