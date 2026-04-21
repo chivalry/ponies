@@ -15,5 +15,3 @@ export const createPony = (data: FormData) => client.post<Pony>('/ponies/', data
 export const updatePony = (id: number, data: FormData) =>
     client.put<Pony>(`/ponies/${id}/`, data)
 export const deletePony = (id: number) => client.delete(`/ponies/${id}/`)
-export const assignHobbyToPony = (ponyId: number, data: { name: string }) =>
-    client.post(`/ponies/${ponyId}/hobbies/`, data)
