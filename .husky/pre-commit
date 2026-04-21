@@ -1,4 +1,5 @@
 npm run lint
 npm run format
-ruff check src_back
-ruff format src_back
+RUFF="${RUFF:-$(dirname "$0")/../.venv/bin/ruff}"
+"$RUFF" check src_back
+"$RUFF" format src_back
