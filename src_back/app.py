@@ -23,9 +23,12 @@ def create_app():
 
     CORS(app)
     db.init_app(app)
+
+    import src_back.models  # noqa: F401 — register models with SQLAlchemy
+
     migrate.init_app(app, db)
 
-    from src_back.api import routes  # noqa: F401
+    from src_back.api import routes
 
     app.register_blueprint(routes.bp)
 

@@ -18,10 +18,10 @@ class Pony(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), nullable=False)
     image_path = db.Column(db.String(255))
-    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
-    created_timestamp = db.Column(
-        db.DateTime, nullable=False, default=_now
+    uuid = db.Column(
+        db.String(36), nullable=False, unique=True, default=_uuid
     )
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
@@ -47,11 +47,13 @@ class Hobby(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), nullable=False)
-    pony_id = db.Column(db.Integer, db.ForeignKey('ponies.id'), nullable=False)
-    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
-    created_timestamp = db.Column(
-        db.DateTime, nullable=False, default=_now
+    pony_id = db.Column(
+        db.Integer, db.ForeignKey('ponies.id'), nullable=False
     )
+    uuid = db.Column(
+        db.String(36), nullable=False, unique=True, default=_uuid
+    )
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
@@ -75,10 +77,10 @@ class Friendship(db.Model):
     __tablename__ = 'friendships'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
-    created_timestamp = db.Column(
-        db.DateTime, nullable=False, default=_now
+    uuid = db.Column(
+        db.String(36), nullable=False, unique=True, default=_uuid
     )
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
@@ -109,10 +111,10 @@ class FriendshipHobby(db.Model):
     hobby_id = db.Column(
         db.Integer, db.ForeignKey('hobbies.id'), nullable=False
     )
-    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
-    created_timestamp = db.Column(
-        db.DateTime, nullable=False, default=_now
+    uuid = db.Column(
+        db.String(36), nullable=False, unique=True, default=_uuid
     )
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
@@ -138,10 +140,10 @@ class PonyFriendship(db.Model):
     pony_id = db.Column(
         db.Integer, db.ForeignKey('ponies.id'), nullable=False
     )
-    uuid = db.Column(db.String(36), nullable=False, unique=True, default=_uuid)
-    created_timestamp = db.Column(
-        db.DateTime, nullable=False, default=_now
+    uuid = db.Column(
+        db.String(36), nullable=False, unique=True, default=_uuid
     )
+    created_timestamp = db.Column(db.DateTime, nullable=False, default=_now)
     modified_timestamp = db.Column(
         db.DateTime, nullable=False, default=_now, onupdate=_now
     )
