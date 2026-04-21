@@ -226,12 +226,96 @@ ponies/
 
 ## Linting & Formatting
 
-- All code must have no lines >90 chars
+**Linting and formatting are enforced for all code.**
+This section is fully self-contained for implementation by an AI agent or human without additional context.
+
+### Directory Structure & Placement
+
+- All linting and formatting config files should be placed at the **project root** for unified configuration. This includes:
+  - `.editorconfig`
+  - `package.json`
+  - `.prettierrc`
+  - `.eslintrc.json`
+  - `pyproject.toml`
+
+- This ensures all tools and editors apply the same rules to both frontend and backend code. Only use subfolder configs if you need different rules for different parts of the repo (rare).
+
+### Config Files to Create
+
+- `.editorconfig` — Basic code style (indentation, line endings, charset)
+- `.prettierrc` — Prettier formatting rules (for JS/TS/React, JSON, Markdown, YAML)
+- `.eslintrc.json` — ESLint rules (for JS/TS/React)
+- `pyproject.toml` — ruff config (for Python)
+
+### Required Packages
+
+**Frontend (in `src_front/`):**
+
+```sh
+npm install --save-dev prettier eslint husky
+```
+
+**Backend (in `src_back/`):**
+
+```sh
+pip install ruff
+# (Optional) if using npm scripts for Python lint/format
+npm install --save-dev husky
+```
+
+### Example Scripts (package.json)
+
+All npm scripts should be defined in the single `package.json` at the project root. Example:
+
+```json
+"scripts": {
+  "lint:js": "eslint src_front --ext .js,.jsx,.ts,.tsx",
+  "format:js": "prettier --write src_front",
+  "lint:py": "ruff check src_back",
+  "format:py": "ruff format src_back"
+}
+```
+
+### Husky Setup
+
+In the repository root, use Husky to enforce linting and formatting for both frontend and backend:
+
+1. Run:
+
+  ```sh
+  npx husky install
+  ```
+
+1. Add a pre-commit hook that runs all checks:
+
+  ```sh
+  #!/bin/sh
+  . "$(dirname "$0")/_/husky.sh"
+
+  # Frontend lint/format
+  npm run lint
+  npm run format
+
+  # Backend Python lint/format (run directly)
+  ruff check src_back
+  ruff format src_back
+  ```
+
+  Or, adjust the paths as needed for your backend code location.
+
+### Enforcement
+
+- All lint/format scripts must pass before commit (enforced by husky pre-commit hook).
+- Integrate lint/format checks in CI (e.g., GitHub Actions).
+- Recommend VS Code extensions for auto-format on save.
+
+### Rules (All Code)
+
+- No lines >90 chars
 - Use single quotes for strings unless escaping is required
 - No linting errors allowed (ESLint, Flake8, etc.)
-- All code must have no lines >90 chars
-- Use single quotes for strings unless escaping is required
-- No linting errors allowed (ESLint, Flake8, etc.)
+
+---
 
 ## Deployment
 
