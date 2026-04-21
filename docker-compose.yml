@@ -18,6 +18,7 @@ services:
       - '5000:5000'
     environment:
       DATABASE_URL: postgresql://pony:pony@db:5432/ponies
+      FLASK_APP: src_back.app
       FLASK_ENV: development
       UPLOAD_FOLDER: src_back/uploads
       SECRET_KEY: change-me
@@ -35,6 +36,8 @@ services:
       dockerfile: docker/frontend.Dockerfile
     ports:
       - '5173:5173'
+    environment:
+      VITE_API_URL: http://backend:5000
     volumes:
       - .:/app
       - /app/node_modules

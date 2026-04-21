@@ -178,6 +178,15 @@ moving on to the next step.
   - Services: db (Postgres), backend, frontend
   - Volumes for db persistence and source code hot-reload
   - Environment variables for secrets/config
+  - **The backend service must set `FLASK_APP: src_back.app`** so that
+    `flask db upgrade` in the startup command can locate the application
+  - **The frontend service must set `VITE_API_URL: http://backend:5000`**
+    so that the Vite dev-server proxy resolves the backend by its Docker
+    service name rather than `localhost` (which refers to the frontend
+    container itself inside Docker)
+  - In `vite.config.ts` the proxy target must read this env var:
+    `target: process.env.VITE_API_URL ?? 'http://localhost:5000'`
+    so local `npm run dev` (outside Docker) still works
 
   Example service config:
 
@@ -191,6 +200,15 @@ moving on to the next step.
         POSTGRES_DB: ponies
       ports:
         - '5432:5432'
+
+    backend:
+      environment:
+        FLASK_APP: src_back.app          # required for flask db upgrade
+        DATABASE_URL: postgresql://pony:pony@db:5432/ponies
+
+    frontend:
+      environment:
+        VITE_API_URL: http://backend:5000  # Docker service name, not localhost
   ```
 
 ## 6. Testing Setup
