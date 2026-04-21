@@ -40,14 +40,14 @@ export default function PonyForm() {
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Box component='form' onSubmit={formik.handleSubmit} sx={{ maxWidth: 480 }}>
-      <Typography variant='h4' sx={{ mb: 2 }}>
+    <Box component="form" onSubmit={formik.handleSubmit} sx={{ maxWidth: 480 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         {isEdit ? 'Edit Pony' : 'New Pony'}
       </Typography>
       <TextField
         fullWidth
-        label='Name'
-        name='name'
+        label="Name"
+        name="name"
         value={formik.values.name}
         onChange={formik.handleChange}
         error={formik.touched.name && Boolean(formik.errors.name)}
@@ -55,12 +55,12 @@ export default function PonyForm() {
         sx={{ mb: 2 }}
       />
       <Box sx={{ mb: 2 }}>
-        <Typography variant='body2' sx={{ mb: 1 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
           Image (optional)
         </Typography>
-        <input type='file' accept='image/*' ref={fileRef} />
+        <input type="file" accept="image/*" ref={fileRef} />
       </Box>
-      <Button type='submit' variant='contained' disabled={formik.isSubmitting}>
+      <Button type="submit" variant="contained" disabled={formik.isSubmitting}>
         {isEdit ? 'Save' : 'Create'}
       </Button>
     </Box>

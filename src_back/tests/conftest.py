@@ -1,15 +1,16 @@
 import pytest
 
-from src_back.app import create_app, db as _db
+from src_back.app import create_app
+from src_back.app import db as _db
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def app():
     app = create_app()
     app.config.update(
         {
-            'TESTING': True,
-            'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         }
     )
     with app.app_context():

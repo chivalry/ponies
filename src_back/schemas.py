@@ -11,9 +11,7 @@ class HobbySchema(Schema):
 
 
 class FriendshipSchema(Schema):
-    pony_ids = fields.List(
-        fields.Int(), required=True, validate=validate.Length(equal=2)
-    )
+    pony_ids = fields.List(fields.Int(), required=True, validate=validate.Length(equal=2))
 
 
 class FriendshipHobbySchema(Schema):

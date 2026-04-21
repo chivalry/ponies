@@ -50,8 +50,8 @@ export default function HobbyList() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant='h4'>Hobbies</Typography>
-        <Button variant='contained' onClick={() => setOpen(true)}>
+        <Typography variant="h4">Hobbies</Typography>
+        <Button variant="contained" onClick={() => setOpen(true)}>
           Add Hobby
         </Button>
       </Box>
@@ -69,11 +69,7 @@ export default function HobbyList() {
               <TableCell>{h.name}</TableCell>
               <TableCell>{ponyName(h.pony_id)}</TableCell>
               <TableCell>
-                <Button
-                  size='small'
-                  color='error'
-                  onClick={() => handleDelete(h.id)}
-                >
+                <Button size="small" color="error" onClick={() => handleDelete(h.id)}>
                   Delete
                 </Button>
               </TableCell>
@@ -86,7 +82,7 @@ export default function HobbyList() {
         <DialogTitle>New Hobby</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
-            label='Name'
+            label="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             fullWidth
@@ -97,7 +93,7 @@ export default function HobbyList() {
             displayEmpty
             fullWidth
           >
-            <MenuItem value=''>Select pony…</MenuItem>
+            <MenuItem value="">Select pony…</MenuItem>
             {ponies.map((p) => (
               <MenuItem key={p.id} value={p.id}>
                 {p.name}
@@ -107,7 +103,7 @@ export default function HobbyList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreate} variant='contained'>
+          <Button onClick={handleCreate} variant="contained">
             Create
           </Button>
         </DialogActions>

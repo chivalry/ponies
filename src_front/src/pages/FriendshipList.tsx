@@ -82,8 +82,8 @@ export default function FriendshipList() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant='h4'>Friendships</Typography>
-        <Button variant='contained' onClick={() => setCreateOpen(true)}>
+        <Typography variant="h4">Friendships</Typography>
+        <Button variant="contained" onClick={() => setCreateOpen(true)}>
           New Friendship
         </Button>
       </Box>
@@ -108,14 +108,10 @@ export default function FriendshipList() {
                 </Box>
               </TableCell>
               <TableCell>
-                <Button size='small' onClick={() => setHobbyOpen(f.id)}>
+                <Button size="small" onClick={() => setHobbyOpen(f.id)}>
                   Add Hobby
                 </Button>
-                <Button
-                  size='small'
-                  color='error'
-                  onClick={() => handleDelete(f.id)}
-                >
+                <Button size="small" color="error" onClick={() => handleDelete(f.id)}>
                   Delete
                 </Button>
               </TableCell>
@@ -128,7 +124,7 @@ export default function FriendshipList() {
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)}>
         <DialogTitle>New Friendship</DialogTitle>
         <DialogContent>
-          <Typography variant='body2' sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ mb: 1 }}>
             Select exactly 2 ponies:
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -147,7 +143,7 @@ export default function FriendshipList() {
           <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
           <Button
             onClick={handleCreate}
-            variant='contained'
+            variant="contained"
             disabled={selectedPonies.length !== 2}
           >
             Create
@@ -166,7 +162,7 @@ export default function FriendshipList() {
             fullWidth
             sx={{ mt: 1 }}
           >
-            <MenuItem value=''>Select hobby…</MenuItem>
+            <MenuItem value="">Select hobby…</MenuItem>
             {hobbies.map((h) => (
               <MenuItem key={h.id} value={h.id}>
                 {h.name}
@@ -176,7 +172,7 @@ export default function FriendshipList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setHobbyOpen(null)}>Cancel</Button>
-          <Button onClick={handleAssignHobby} variant='contained'>
+          <Button onClick={handleAssignHobby} variant="contained">
             Assign
           </Button>
         </DialogActions>
