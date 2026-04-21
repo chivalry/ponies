@@ -160,9 +160,7 @@ def list_pony_hobbies(id):
     pony = Pony.query.get(id)
     if not pony:
         return _not_found("Pony", id)
-    hobbies = (
-        Hobby.query.join(PonyHobby).filter(PonyHobby.pony_id == id).all()
-    )
+    hobbies = Hobby.query.join(PonyHobby).filter(PonyHobby.pony_id == id).all()
     return jsonify([h.to_dict() for h in hobbies])
 
 
@@ -409,9 +407,7 @@ def create_pony_hobby():
         return _not_found("Pony", pony_id)
     if not Hobby.query.get(hobby_id):
         return _not_found("Hobby", hobby_id)
-    existing = PonyHobby.query.filter_by(
-        pony_id=pony_id, hobby_id=hobby_id
-    ).first()
+    existing = PonyHobby.query.filter_by(pony_id=pony_id, hobby_id=hobby_id).first()
     if existing:
         return jsonify({"error": "Hobby already assigned to this pony"}), 409
     ph = PonyHobby(pony_id=pony_id, hobby_id=hobby_id)

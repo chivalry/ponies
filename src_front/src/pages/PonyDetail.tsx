@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import {
-    Box,
-    Button,
-    Chip,
-    Divider,
-    MenuItem,
-    Select,
-    Typography,
-} from '@mui/material'
+import { Box, Button, Chip, Divider, MenuItem, Select, Typography } from '@mui/material'
 import { getPony, type Pony } from '../api/ponies'
 import {
     listHobbies,
