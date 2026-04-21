@@ -24,9 +24,6 @@ node_modules/
 dist/
 .npm
 
-# Vite
-dist/public/
-
 # Env
 .env
 *.env
