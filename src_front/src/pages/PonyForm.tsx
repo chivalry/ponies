@@ -5,7 +5,10 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { getPony, createPony, updatePony } from '../api/ponies'
 
-const schema = Yup.object({ name: Yup.string().required('Name is required') })
+const schema = Yup.object({
+    name: Yup.string().required('Name is required'),
+    imageUrl: Yup.string().url('Must be a valid URL').optional(),
+})
 
 export default function PonyForm() {
     const { id } = useParams<{ id: string }>()
@@ -14,13 +17,15 @@ export default function PonyForm() {
     const isEdit = Boolean(id)
 
     const formik = useFormik({
-        initialValues: { name: '' },
+        initialValues: { name: '', imageUrl: '' },
         validationSchema: schema,
         onSubmit: async (values) => {
             const fd = new FormData()
             fd.append('name', values.name)
             if (fileRef.current?.files?.[0]) {
                 fd.append('image', fileRef.current.files[0])
+            } else if (values.imageUrl) {
+                fd.append('image_url', values.imageUrl)
             }
             if (isEdit) {
                 await updatePony(Number(id), fd)
@@ -58,8 +63,26 @@ export default function PonyForm() {
                 <Typography variant="body2" sx={{ mb: 1 }}>
                     Image (optional)
                 </Typography>
-                <input type="file" accept="image/*" ref={fileRef} />
+                <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileRef}
+                    onChange={() => formik.setFieldValue('imageUrl', '')}
+                />
             </Box>
+            <TextField
+                fullWidth
+                label="Image URL (optional)"
+                name="imageUrl"
+                value={formik.values.imageUrl}
+                onChange={(e) => {
+                    if (fileRef.current) fileRef.current.value = ''
+                    formik.handleChange(e)
+                }}
+                error={formik.touched.imageUrl && Boolean(formik.errors.imageUrl)}
+                helperText={formik.touched.imageUrl && formik.errors.imageUrl}
+                sx={{ mb: 2 }}
+            />
             <Button type="submit" variant="contained" disabled={formik.isSubmitting}>
                 {isEdit ? 'Save' : 'Create'}
             </Button>

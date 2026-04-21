@@ -8,6 +8,7 @@ psycopg2-binary
 python-dotenv
 gunicorn
 Pillow
+requests
 ruff
 pytest
 pytest-flask

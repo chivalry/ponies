@@ -1,6 +1,7 @@
 import os
 import uuid
 
+import requests as http_requests
 from flask import Blueprint, current_app, jsonify, request
 from werkzeug.utils import secure_filename
 
@@ -30,6 +31,35 @@ def _bad_request(msg):
     return jsonify({"error": msg}), 400
 
 
+CONTENT_TYPE_TO_EXT = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+}
+MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
+
+
+def _save_image_from_url(url, upload_dir):
+    resp = http_requests.get(url, timeout=10, stream=True)
+    resp.raise_for_status()
+    content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
+    ext = CONTENT_TYPE_TO_EXT.get(content_type)
+    if not ext:
+        raise ValueError(f"URL did not return a supported image type: {content_type}")
+    os.makedirs(upload_dir, exist_ok=True)
+    filename = secure_filename(f"{uuid.uuid4()}.{ext}")
+    dest = os.path.join(upload_dir, filename)
+    size = 0
+    with open(dest, "wb") as f:
+        for chunk in resp.iter_content(chunk_size=8192):
+            size += len(chunk)
+            if size > MAX_IMAGE_BYTES:
+                raise ValueError("Image exceeds 10 MB limit")
+            f.write(chunk)
+    return f"uploads/{filename}"
+
+
 # ── Ponies ────────────────────────────────────────────────────────────────────
 
 
@@ -55,7 +85,16 @@ def create_pony():
             filename = secure_filename(f"{uuid.uuid4()}.{ext}")
             dest = os.path.join(upload_dir, filename)
             file.save(dest)
-            image_path = dest
+            image_path = f"uploads/{filename}"
+    elif image_url := (
+        request.form.get("image_url")
+        or (request.get_json(silent=True) or {}).get("image_url")
+    ):
+        try:
+            upload_dir = current_app.config["UPLOAD_FOLDER"]
+            image_path = _save_image_from_url(image_url, upload_dir)
+        except (ValueError, http_requests.RequestException) as e:
+            return _bad_request(str(e))
 
     pony = Pony(name=name, image_path=image_path)
     db.session.add(pony)
@@ -90,7 +129,16 @@ def update_pony(id):
             filename = secure_filename(f"{uuid.uuid4()}.{ext}")
             dest = os.path.join(upload_dir, filename)
             file.save(dest)
-            pony.image_path = dest
+            pony.image_path = f"uploads/{filename}"
+    elif image_url := (
+        request.form.get("image_url")
+        or (request.get_json(silent=True) or {}).get("image_url")
+    ):
+        try:
+            upload_dir = current_app.config["UPLOAD_FOLDER"]
+            pony.image_path = _save_image_from_url(image_url, upload_dir)
+        except (ValueError, http_requests.RequestException) as e:
+            return _bad_request(str(e))
 
     db.session.commit()
     return jsonify(pony.to_dict())

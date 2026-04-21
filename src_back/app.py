@@ -31,6 +31,11 @@ def create_app():
 
     app.register_blueprint(routes.bp)
 
+    @app.route("/uploads/<path:filename>")
+    def serve_upload(filename):
+        upload_dir = os.path.abspath(app.config["UPLOAD_FOLDER"])
+        return send_from_directory(upload_dir, filename)
+
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve_frontend(path):
