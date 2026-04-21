@@ -1,0 +1,10 @@
+{
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "docker/backend.Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "flask db upgrade && gunicorn app:app",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

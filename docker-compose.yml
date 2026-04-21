@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pony
+      POSTGRES_PASSWORD: pony
+      POSTGRES_DB: ponies
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    ports:
+      - '5000:5000'
+    environment:
+      DATABASE_URL: postgresql://pony:pony@db:5432/ponies
+      FLASK_ENV: development
+      UPLOAD_FOLDER: src_back/uploads
+      SECRET_KEY: change-me
+    volumes:
+      - .:/app
+      - ./src_back/uploads:/app/src_back/uploads
+    depends_on:
+      - db
+    command: >
+      sh -c "flask db upgrade && gunicorn --bind 0.0.0.0:5000 --reload src_back.app:app"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
