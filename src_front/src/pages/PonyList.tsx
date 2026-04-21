@@ -20,8 +20,8 @@ export default function PonyList() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant='h4'>Ponies</Typography>
-        <Button variant='contained' component={Link} to='/ponies/new'>
+        <Typography variant="h4">Ponies</Typography>
+        <Button variant="contained" component={Link} to="/ponies/new">
           Add Pony
         </Button>
       </Box>

@@ -13,14 +13,12 @@ migrate = Migrate()
 
 
 def create_app():
-    static_folder = os.path.abspath('dist/public')
-    app = Flask(__name__, static_folder=static_folder, static_url_path='')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')
-    app.config['UPLOAD_FOLDER'] = os.environ.get(
-        'UPLOAD_FOLDER', 'src_back/uploads'
-    )
+    static_folder = os.path.abspath("dist/public")
+    app = Flask(__name__, static_folder=static_folder, static_url_path="")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
+    app.config["UPLOAD_FOLDER"] = os.environ.get("UPLOAD_FOLDER", "src_back/uploads")
 
     CORS(app)
     db.init_app(app)
@@ -33,15 +31,15 @@ def create_app():
 
     app.register_blueprint(routes.bp)
 
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
     def serve_frontend(path):
-        if path.startswith('api/'):
-            return {'error': 'Not found'}, 404
+        if path.startswith("api/"):
+            return {"error": "Not found"}, 404
         full = os.path.join(static_folder, path)
         if path and os.path.exists(full):
             return send_from_directory(static_folder, path)
-        return send_from_directory(static_folder, 'index.html')
+        return send_from_directory(static_folder, "index.html")
 
     return app
 

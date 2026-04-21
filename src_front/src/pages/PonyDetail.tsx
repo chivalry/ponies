@@ -24,19 +24,19 @@ export default function PonyDetail() {
 
   return (
     <Box sx={{ maxWidth: 600 }}>
-      <Typography variant='h4' sx={{ mb: 1 }}>
+      <Typography variant="h4" sx={{ mb: 1 }}>
         {pony.name}
       </Typography>
       {pony.image_path && (
         <Box
-          component='img'
+          component="img"
           src={`/${pony.image_path}`}
           alt={pony.name}
           sx={{ width: '100%', maxHeight: 300, objectFit: 'cover', mb: 2 }}
         />
       )}
       <Divider sx={{ my: 2 }} />
-      <Typography variant='h6'>Hobbies</Typography>
+      <Typography variant="h6">Hobbies</Typography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 1 }}>
         {hobbies.length === 0 && <Typography>No hobbies yet.</Typography>}
         {hobbies.map((h) => (
@@ -44,17 +44,15 @@ export default function PonyDetail() {
         ))}
       </Box>
       <Divider sx={{ my: 2 }} />
-      <Typography variant='h6'>Friendships</Typography>
+      <Typography variant="h6">Friendships</Typography>
       <Box sx={{ my: 1 }}>
-        {friendships.length === 0 && (
-          <Typography>No friendships yet.</Typography>
-        )}
+        {friendships.length === 0 && <Typography>No friendships yet.</Typography>}
         {friendships.map((pf) => (
           <Typography key={pf.id}>Friendship #{pf.friendship_id}</Typography>
         ))}
       </Box>
       <Box sx={{ mt: 2 }}>
-        <Button component={Link} to={`/ponies/${id}/edit`} variant='outlined'>
+        <Button component={Link} to={`/ponies/${id}/edit`} variant="outlined">
           Edit
         </Button>
       </Box>
