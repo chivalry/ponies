@@ -29,13 +29,11 @@ export const listFriendships = () => client.get<Friendship[]>('/friendships/')
 export const getFriendship = (id: number) => client.get<Friendship>(`/friendships/${id}/`)
 export const createFriendship = (data: { pony_ids: number[] }) =>
     client.post<Friendship>('/friendships/', data)
-
 export const deleteFriendship = (id: number) => client.delete(`/friendships/${id}/`)
 export const assignHobbyToFriendship = (
     friendshipId: number,
     data: { hobby_id: number },
 ) => client.post(`/friendships/${friendshipId}/hobbies/`, data)
-
 export const listPonyFriendships = () =>
     client.get<PonyFriendship[]>('/pony_friendships/')
 export const deletePonyFriendship = (id: number) =>

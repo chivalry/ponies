@@ -7,6 +7,11 @@ interface Props {
     onDelete: (id: number) => void
 }
 
+/**
+ * Displays a pony's image and name with View, Edit, and Delete actions.
+ * @param pony - The pony to display.
+ * @param onDelete - Callback invoked with the pony's id when Delete is clicked.
+ */
 export const PonyCard = ({ pony, onDelete }: Props) => (
     <Card>
         {pony.image_path && (
