@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 import { listHobbies, createHobby, deleteHobby, type Hobby } from '../api/hobbies'
 
+/** Page listing all hobbies with options to create and delete them. */
 export default function HobbyList() {
     const [hobbies, setHobbies] = useState<Hobby[]>([])
     const [open, setOpen] = useState(false)

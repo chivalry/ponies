@@ -10,6 +10,7 @@ const schema = Yup.object({
     imageUrl: Yup.string().url('Must be a valid URL').optional(),
 })
 
+/** Form for creating a new pony or editing an existing one, with image upload or URL. */
 export default function PonyForm() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
