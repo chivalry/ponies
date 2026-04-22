@@ -13,6 +13,7 @@ import {
 } from '../api/hobbies'
 import { listPonyFriendships, type PonyFriendship } from '../api/friendships'
 
+/** Page showing a pony's details, hobbies, and friendships with hobby assignment. */
 export default function PonyDetail() {
     const { id } = useParams<{ id: string }>()
     const [pony, setPony] = useState<Pony | null>(null)
