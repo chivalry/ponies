@@ -13,20 +13,25 @@ migrate = Migrate()
 
 
 def create_app():
+    """Create and configure the Flask application.
+
+    Initializes SQLAlchemy, Flask-Migrate, and CORS, then registers all API
+    blueprints and routes for serving uploaded files and the frontend SPA.
+
+    Returns:
+        Flask: The configured Flask application instance.
+    """
     static_folder = os.path.abspath("dist/public")
     app = Flask(__name__, static_folder=static_folder, static_url_path="")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
     app.config["UPLOAD_FOLDER"] = os.environ.get("UPLOAD_FOLDER", "src_back/uploads")
-
     CORS(app)
     db.init_app(app)
-
     import src_back.models  # noqa: F401 — register models with SQLAlchemy
 
     migrate.init_app(app, db)
-
     from src_back.api.friendship_hobby_routes import friendship_hobby_bp
     from src_back.api.friendship_routes import friendship_bp
     from src_back.api.hobby_routes import hobby_bp
