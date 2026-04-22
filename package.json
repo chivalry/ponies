@@ -8,8 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint src_front/src",
         "format": "prettier --write src_front/src",
-        "lint:py": "ruff check src_back",
-        "format:py": "ruff format src_back",
+        "lint:py": ".venv/bin/ruff check src_back",
+        "format:py": ".venv/bin/ruff format src_back",
         "test": "vitest run",
         "test:watch": "vitest",
         "prepare": "husky"
@@ -54,8 +54,8 @@
             "prettier --write"
         ],
         "src_back/**/*.py": [
-            "ruff check --fix",
-            "ruff format"
+            ".venv/bin/ruff check --fix",
+            ".venv/bin/ruff format"
         ]
     }
 }
