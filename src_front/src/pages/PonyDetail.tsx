@@ -32,7 +32,7 @@ export default function PonyDetail() {
         ]).then(([ponyHobbiesRes, assignmentsRes, allRes]) => {
             const assigned = new Set(ponyHobbiesRes.data.map((h) => h.id))
             setHobbies(ponyHobbiesRes.data)
-            setPonyHobbies(assignmentsRes.data)
+            setPonyHobbies(assignmentsRes)
             setAllHobbies(allRes.data.filter((h) => !assigned.has(h.id)))
         })
     }
