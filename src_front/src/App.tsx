@@ -6,6 +6,7 @@ import PonyForm from './pages/PonyForm'
 import HobbyList from './pages/HobbyList'
 import FriendshipList from './pages/FriendshipList'
 
+/** Root application component providing the nav bar and client-side routes. */
 export default function App() {
     return (
         <>
