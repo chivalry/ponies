@@ -4,8 +4,7 @@ from flask import Blueprint, jsonify, request
 
 from src_back.app import db
 from src_back.models import Hobby
-
-from .utils import bad_request, not_found
+from src_back.utils import bad_request, not_found
 
 hobby_bp = Blueprint("hobby", __name__, url_prefix="/api/hobbies")
 

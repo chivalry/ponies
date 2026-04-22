@@ -8,8 +8,7 @@ from werkzeug.utils import secure_filename
 
 from src_back.app import db
 from src_back.models import Hobby, Pony, PonyHobby
-
-from .utils import allowed_file, bad_request, not_found, save_image_from_url
+from src_back.utils import allowed_file, bad_request, not_found, save_image_from_url
 
 pony_bp = Blueprint("pony", __name__, url_prefix="/api/ponies")
 

@@ -1,11 +1,31 @@
-"""Utility functions and constants for API routes."""
+"""Utility functions and constants for API routes and models."""
 
 import os
-import uuid
+import uuid as uuid_lib
+from datetime import UTC, datetime
 
 import requests as http_requests
 from flask import jsonify
 from werkzeug.utils import secure_filename
+
+
+def now():
+    """Return the current UTC datetime.
+
+    Returns:
+        datetime: The current datetime with UTC timezone.
+    """
+    return datetime.now(UTC)
+
+
+def uuid():
+    """Return a new UUID4 as a string.
+
+    Returns:
+        str: A randomly generated UUID4 string.
+    """
+    return str(uuid_lib.uuid4())
+
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 CONTENT_TYPE_TO_EXT = {
@@ -90,7 +110,7 @@ def save_image_from_url(url, upload_dir):
         except ValueError:
             pass
     os.makedirs(upload_dir, exist_ok=True)
-    filename = secure_filename(f"{uuid.uuid4()}.{ext}")
+    filename = secure_filename(f"{uuid_lib.uuid4()}.{ext}")
     dest = os.path.join(upload_dir, filename)
     size = 0
     with open(dest, "wb") as f:
