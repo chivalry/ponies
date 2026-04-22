@@ -41,10 +41,21 @@
         "globals": "^15.14.0",
         "husky": "^9.1.7",
         "jsdom": "^29.0.2",
+        "lint-staged": "^16.4.0",
         "prettier": "^3.4.2",
         "typescript": "^5.7.3",
         "typescript-eslint": "^8.20.0",
         "vite": "^6.0.7",
         "vitest": "^4.1.5"
+    },
+    "lint-staged": {
+        "src_front/src/**/*.{js,jsx,ts,tsx}": [
+            "eslint --fix",
+            "prettier --write"
+        ],
+        "src_back/**/*.py": [
+            "ruff check --fix",
+            "ruff format"
+        ]
     }
 }

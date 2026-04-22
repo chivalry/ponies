@@ -1,5 +1,1 @@
-npm run lint
-npm run format
-RUFF="${RUFF:-$(dirname "$0")/../.venv/bin/ruff}"
-"$RUFF" check src_back
-"$RUFF" format src_back
+npx lint-staged
