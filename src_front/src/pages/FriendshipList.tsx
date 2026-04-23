@@ -44,7 +44,7 @@ const FriendshipCard = ({
   onDelete,
   onAddHobby,
 }: FriendshipCardProps) => (
-  <Card sx={{ width: 'fit-content' }}>
+  <Card sx={{ width: 'fit-content', minWidth: 160 }}>
     <CardContent>
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
         {ponies.map((pf) => {
@@ -220,7 +220,12 @@ export default function FriendshipList() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4">Friendships</Typography>
-        <Button variant="contained" onClick={() => setCreateOpen(true)}>
+        <Button
+          variant="contained"
+          size="small"
+          sx={{ alignSelf: 'center' }}
+          onClick={() => setCreateOpen(true)}
+        >
           New Friendship
         </Button>
       </Box>

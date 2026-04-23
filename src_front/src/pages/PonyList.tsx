@@ -53,7 +53,13 @@ export default function PonyList() {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4">Ponies</Typography>
-        <Button variant="contained" component={Link} to="/ponies/new">
+        <Button
+          variant="contained"
+          component={Link}
+          to="/ponies/new"
+          size="small"
+          sx={{ alignSelf: 'center' }}
+        >
           Add Pony
         </Button>
       </Box>
