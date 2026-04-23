@@ -1,5 +1,14 @@
 import { Link } from 'react-router-dom'
-import { Box, Button, Card, CardContent, Chip, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
 import type { Pony } from '../api/ponies'
 import type { PonyFriendship, FriendshipHobby } from '../api/friendships'
 import type { Hobby } from '../api/hobbies'
@@ -34,6 +43,10 @@ export const PonyCard = ({
   ponyHobbies,
   onDelete,
 }: Props) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const imageSize = isMobile ? 100 : 160
+
   const myFriendshipIds = ponyFriendships
     .filter((pf) => pf.pony_id === pony.id)
     .map((pf) => pf.friendship_id)
@@ -59,7 +72,11 @@ export const PonyCard = ({
         <Box sx={{ display: 'flex', gap: 2 }}>
           {pony.image_path && (
             <Box sx={{ flexShrink: 0 }}>
-              <CircularImage src={`/${pony.image_path}`} alt={pony.name} size={160} />
+              <CircularImage
+                src={`/${pony.image_path}`}
+                alt={pony.name}
+                size={imageSize}
+              />
             </Box>
           )}
           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -72,7 +89,7 @@ export const PonyCard = ({
                 <Typography variant="body2" color="text.secondary">
                   Friends
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5 }}>
+                <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', mt: 0.5 }}>
                   {friends.map((friend) => (
                     <Box
                       key={friend.id}
