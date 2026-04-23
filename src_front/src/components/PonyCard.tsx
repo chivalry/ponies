@@ -129,19 +129,18 @@ export const PonyCard = ({
                 </Box>
               </Box>
             )}
-
-            <Box sx={{ mt: 1, display: 'flex', gap: 1 }}>
-              <Button size="small" component={Link} to={`/ponies/${pony.id}`}>
-                View
-              </Button>
-              <Button size="small" component={Link} to={`/ponies/${pony.id}/edit`}>
-                Edit
-              </Button>
-              <Button size="small" color="error" onClick={() => onDelete(pony.id)}>
-                Delete
-              </Button>
-            </Box>
           </Box>
+        </Box>
+        <Box sx={{ mt: 1, display: 'flex', gap: 1, justifyContent: 'center' }}>
+          <Button size="small" component={Link} to={`/ponies/${pony.id}`}>
+            View
+          </Button>
+          <Button size="small" component={Link} to={`/ponies/${pony.id}/edit`}>
+            Edit
+          </Button>
+          <Button size="small" color="error" onClick={() => onDelete(pony.id)}>
+            Delete
+          </Button>
         </Box>
       </CardContent>
     </Card>
