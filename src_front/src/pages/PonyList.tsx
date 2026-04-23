@@ -59,7 +59,7 @@ export default function PonyList() {
       </Box>
       <Grid container spacing={2}>
         {ponies.map((pony) => (
-          <Grid item xs={12} sm={6} md={4} key={pony.id}>
+          <Grid item xs={12} sm={6} md={3} key={pony.id}>
             <PonyCard
               pony={pony}
               ponies={ponies}

@@ -67,19 +67,6 @@ export const PonyCard = ({
               {pony.name}
             </Typography>
 
-            {ponyHobbies.length > 0 && (
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Hobbies
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
-                  {ponyHobbies.map((h) => (
-                    <Chip key={h.id} label={h.name} size="small" />
-                  ))}
-                </Box>
-              </Box>
-            )}
-
             {friends.length > 0 && (
               <Box sx={{ mb: 1 }}>
                 <Typography variant="body2" color="text.secondary">
@@ -105,6 +92,19 @@ export const PonyCard = ({
                       )}
                       <Typography variant="caption">{friend.name}</Typography>
                     </Box>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {ponyHobbies.length > 0 && (
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Hobbies
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+                  {ponyHobbies.map((h) => (
+                    <Chip key={h.id} label={h.name} size="small" />
                   ))}
                 </Box>
               </Box>
