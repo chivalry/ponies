@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
+  Card,
+  CardContent,
   Chip,
   Dialog,
   DialogActions,
@@ -9,11 +11,6 @@ import {
   DialogTitle,
   MenuItem,
   Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Typography,
 } from '@mui/material'
 import {
@@ -29,7 +26,7 @@ import { listPonies, type Pony } from '../api/ponies'
 import { listHobbies, type Hobby } from '../api/hobbies'
 import { CircularImage } from '../components/CircularImage'
 
-interface FriendshipRowProps {
+interface FriendshipCardProps {
   friendship: Friendship
   ponies: PonyFriendship[]
   ponyName: (id: number) => string | number
@@ -38,19 +35,18 @@ interface FriendshipRowProps {
   onAddHobby: (id: number) => void
 }
 
-/** Renders a single friendship row with pony chips and action buttons. */
-const FriendshipRow = ({
+/** Renders a single friendship as a compact card with pony images and actions. */
+const FriendshipCard = ({
   friendship: f,
   ponies,
   ponyName,
   ponyImage,
   onDelete,
   onAddHobby,
-}: FriendshipRowProps) => (
-  <TableRow key={f.id}>
-    <TableCell>{f.id}</TableCell>
-    <TableCell>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+}: FriendshipCardProps) => (
+  <Card sx={{ width: 'fit-content' }}>
+    <CardContent>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
         {ponies.map((pf) => {
           const imgPath = ponyImage(pf.pony_id)
           const name = String(ponyName(pf.pony_id))
@@ -65,21 +61,21 @@ const FriendshipRow = ({
               }}
             >
               {imgPath && <CircularImage src={`/${imgPath}`} alt={name} size={40} />}
-              <Chip label={name} />
+              <Chip label={name} size="small" />
             </Box>
           )
         })}
       </Box>
-    </TableCell>
-    <TableCell>
-      <Button size="small" onClick={() => onAddHobby(f.id)}>
-        Add Hobby
-      </Button>
-      <Button size="small" color="error" onClick={() => onDelete(f.id)}>
-        Delete
-      </Button>
-    </TableCell>
-  </TableRow>
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <Button size="small" onClick={() => onAddHobby(f.id)}>
+          Add Hobby
+        </Button>
+        <Button size="small" color="error" onClick={() => onDelete(f.id)}>
+          Delete
+        </Button>
+      </Box>
+    </CardContent>
+  </Card>
 )
 
 interface CreateFriendshipDialogProps {
@@ -228,28 +224,19 @@ export default function FriendshipList() {
           New Friendship
         </Button>
       </Box>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Ponies</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {friendships.map((f) => (
-            <FriendshipRow
-              key={f.id}
-              friendship={f}
-              ponies={friendshipPonies(f.id)}
-              ponyName={ponyName}
-              ponyImage={ponyImage}
-              onDelete={handleDelete}
-              onAddHobby={setHobbyOpen}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+        {friendships.map((f) => (
+          <FriendshipCard
+            key={f.id}
+            friendship={f}
+            ponies={friendshipPonies(f.id)}
+            ponyName={ponyName}
+            ponyImage={ponyImage}
+            onDelete={handleDelete}
+            onAddHobby={setHobbyOpen}
+          />
+        ))}
+      </Box>
       <CreateFriendshipDialog
         open={createOpen}
         ponies={ponies}

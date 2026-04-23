@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Box, Button, Chip, Divider, MenuItem, Select, Typography } from '@mui/material'
-import { getPony, type Pony } from '../api/ponies'
+import { getPony, listPonies, type Pony } from '../api/ponies'
 import {
   listHobbies,
   listPonyHobbies,
@@ -12,16 +12,18 @@ import {
   type PonyHobby,
 } from '../api/hobbies'
 import { listPonyFriendships, type PonyFriendship } from '../api/friendships'
+import { CircularImage } from '../components/CircularImage'
 
 /** Page showing a pony's details, hobbies, and friendships with hobby assignment. */
 export default function PonyDetail() {
   const { id } = useParams<{ id: string }>()
   const [pony, setPony] = useState<Pony | null>(null)
+  const [allPonies, setAllPonies] = useState<Pony[]>([])
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [ponyHobbies, setPonyHobbies] = useState<PonyHobby[]>([])
   const [allHobbies, setAllHobbies] = useState<Hobby[]>([])
   const [selectedHobbyId, setSelectedHobbyId] = useState<number | ''>('')
-  const [friendships, setFriendships] = useState<PonyFriendship[]>([])
+  const [allPonyFriendships, setAllPonyFriendships] = useState<PonyFriendship[]>([])
 
   const numId = Number(id)
 
@@ -40,10 +42,9 @@ export default function PonyDetail() {
 
   useEffect(() => {
     getPony(numId).then((r) => setPony(r.data))
+    listPonies().then((r) => setAllPonies(r.data))
+    listPonyFriendships().then((r) => setAllPonyFriendships(r.data))
     refreshHobbyState()
-    listPonyFriendships().then((r) =>
-      setFriendships(r.data.filter((pf) => pf.pony_id === numId)),
-    )
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAssign = async () => {
@@ -60,63 +61,89 @@ export default function PonyDetail() {
     refreshHobbyState()
   }
 
+  const myFriendshipIds = allPonyFriendships
+    .filter((pf) => pf.pony_id === numId)
+    .map((pf) => pf.friendship_id)
+
+  const friends = allPonyFriendships
+    .filter((pf) => myFriendshipIds.includes(pf.friendship_id) && pf.pony_id !== numId)
+    .map((pf) => allPonies.find((p) => p.id === pf.pony_id))
+    .filter((p): p is Pony => p !== undefined)
+
   if (!pony) return <Typography>Loading…</Typography>
 
   return (
-    <Box sx={{ maxWidth: 600 }}>
-      <Typography variant="h4" sx={{ mb: 1 }}>
+    <Box sx={{ maxWidth: 800 }}>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         {pony.name}
       </Typography>
-      {pony.image_path && (
-        <Box
-          component="img"
-          src={`/${pony.image_path}`}
-          alt={pony.name}
-          sx={{ width: '100%', maxHeight: 300, objectFit: 'cover', mb: 2 }}
-        />
-      )}
-      <Divider sx={{ my: 2 }} />
-      <Typography variant="h6">Hobbies</Typography>
-      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 1 }}>
-        {hobbies.length === 0 && <Typography>No hobbies yet.</Typography>}
-        {hobbies.map((h) => (
-          <Chip key={h.id} label={h.name} onDelete={() => handleUnassign(h.id)} />
-        ))}
-      </Box>
-      {allHobbies.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-          <Select
-            value={selectedHobbyId}
-            onChange={(e) => setSelectedHobbyId(e.target.value as number)}
-            displayEmpty
-            size="small"
-          >
-            <MenuItem value="">Assign hobby…</MenuItem>
-            {allHobbies.map((h) => (
-              <MenuItem key={h.id} value={h.id}>
-                {h.name}
-              </MenuItem>
+      <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start' }}>
+        {pony.image_path && (
+          <Box sx={{ flexShrink: 0 }}>
+            <CircularImage src={`/${pony.image_path}`} alt={pony.name} size={300} />
+          </Box>
+        )}
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="h6">Hobbies</Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 1 }}>
+            {hobbies.length === 0 && <Typography>No hobbies yet.</Typography>}
+            {hobbies.map((h) => (
+              <Chip key={h.id} label={h.name} onDelete={() => handleUnassign(h.id)} />
             ))}
-          </Select>
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={!selectedHobbyId}
-            onClick={handleAssign}
-          >
-            Assign
-          </Button>
+          </Box>
+          {allHobbies.length > 0 && (
+            <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+              <Select
+                value={selectedHobbyId}
+                onChange={(e) => setSelectedHobbyId(e.target.value as number)}
+                displayEmpty
+                size="small"
+              >
+                <MenuItem value="">Assign hobby…</MenuItem>
+                {allHobbies.map((h) => (
+                  <MenuItem key={h.id} value={h.id}>
+                    {h.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Button
+                variant="outlined"
+                size="small"
+                disabled={!selectedHobbyId}
+                onClick={handleAssign}
+              >
+                Assign
+              </Button>
+            </Box>
+          )}
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="h6">Friends</Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', my: 1 }}>
+            {friends.length === 0 && <Typography>No friends yet.</Typography>}
+            {friends.map((friend) => (
+              <Box
+                key={friend.id}
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                {friend.image_path && (
+                  <CircularImage
+                    src={`/${friend.image_path}`}
+                    alt={friend.name}
+                    size={80}
+                  />
+                )}
+                <Typography variant="caption">{friend.name}</Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
-      )}
-      <Divider sx={{ my: 2 }} />
-      <Typography variant="h6">Friendships</Typography>
-      <Box sx={{ my: 1 }}>
-        {friendships.length === 0 && <Typography>No friendships yet.</Typography>}
-        {friendships.map((pf) => (
-          <Typography key={pf.id}>Friendship #{pf.friendship_id}</Typography>
-        ))}
       </Box>
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 3 }}>
         <Button component={Link} to={`/ponies/${id}/edit`} variant="outlined">
           Edit
         </Button>
