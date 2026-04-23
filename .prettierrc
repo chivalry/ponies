@@ -6,7 +6,7 @@
     "tabWidth": 4,
     "overrides": [
         {
-            "files": ["*.yml", "*.yaml"],
+            "files": ["*.js", "*.ts", "*.jsx", "*.tsx", "*.json", "*.yml", "*.yaml"],
             "options": { "tabWidth": 2 }
         }
     ]

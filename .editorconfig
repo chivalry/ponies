@@ -9,6 +9,6 @@ max_line_length = 90
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-[*.{yml,yaml}]
+[*.{js,ts,jsx,tsx,json,yml,yaml}]
 indent_size = 2
 
