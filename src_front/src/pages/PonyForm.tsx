@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Box, Button, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, TextField, Typography } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { getPony, createPony, updatePony } from '../api/ponies'
@@ -16,11 +16,13 @@ export default function PonyForm() {
     const navigate = useNavigate()
     const fileRef = useRef<HTMLInputElement>(null)
     const isEdit = Boolean(id)
+    const [submitError, setSubmitError] = useState<string | null>(null)
 
     const formik = useFormik({
         initialValues: { name: '', imageUrl: '' },
         validationSchema: schema,
         onSubmit: async (values) => {
+            setSubmitError(null)
             const fd = new FormData()
             fd.append('name', values.name)
             if (fileRef.current?.files?.[0]) {
@@ -28,12 +30,18 @@ export default function PonyForm() {
             } else if (values.imageUrl) {
                 fd.append('image_url', values.imageUrl)
             }
-            if (isEdit) {
-                await updatePony(Number(id), fd)
-            } else {
-                await createPony(fd)
+            try {
+                if (isEdit) {
+                    await updatePony(Number(id), fd)
+                } else {
+                    await createPony(fd)
+                }
+                navigate('/')
+            } catch (err: unknown) {
+                const msg =
+                    err instanceof Error ? err.message : 'An unexpected error occurred.'
+                setSubmitError(msg)
             }
-            navigate('/')
         },
     })
 
@@ -50,6 +58,11 @@ export default function PonyForm() {
             <Typography variant="h4" sx={{ mb: 2 }}>
                 {isEdit ? 'Edit Pony' : 'New Pony'}
             </Typography>
+            {submitError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {submitError}
+                </Alert>
+            )}
             <TextField
                 fullWidth
                 label="Name"

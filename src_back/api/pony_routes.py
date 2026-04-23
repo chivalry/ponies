@@ -89,9 +89,9 @@ def update_pony(id):
     if not pony:
         return not_found("Pony", id)
 
-    data = request.get_json(silent=True) or {}
-    if "name" in data:
-        pony.name = data["name"]
+    name = request.form.get("name") or (request.get_json(silent=True) or {}).get("name")
+    if name:
+        pony.name = name
 
     if "image" in request.files:
         file = request.files["image"]
