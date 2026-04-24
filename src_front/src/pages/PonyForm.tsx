@@ -46,9 +46,14 @@ export default function PonyForm() {
 
   useEffect(() => {
     if (isEdit) {
-      getPony(Number(id)).then((r) => {
-        formik.setFieldValue('name', r.data.name)
-      })
+      getPony(Number(id))
+        .then((r) => {
+          formik.setFieldValue('name', r.data.name)
+        })
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : 'Failed to load pony.'
+          setSubmitError(msg)
+        })
     }
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
