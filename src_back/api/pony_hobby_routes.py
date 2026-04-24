@@ -17,7 +17,11 @@ def list_pony_hobbies_all():
     Returns:
         Response: Flask JSON response containing all pony-hobby assignments.
     """
-    phs = PonyHobby.query.all()
+    pony_id = request.args.get("pony_id", type=int)
+    query = PonyHobby.query
+    if pony_id is not None:
+        query = query.filter_by(pony_id=pony_id)
+    phs = query.all()
     return jsonify([ph.to_dict() for ph in phs])
 
 

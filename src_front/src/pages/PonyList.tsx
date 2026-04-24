@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Alert, Box, Button, Grid, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 
 import { listPonies, deletePony, type Pony } from '../api/ponies'
 import {
@@ -27,6 +28,7 @@ export default function PonyList() {
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [ponyHobbiesMap, setPonyHobbiesMap] = useState<Record<number, Hobby[]>>({})
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const onErr = (err: unknown) =>
     setError(err instanceof Error ? err.message : 'Failed to load data.')
@@ -52,6 +54,7 @@ export default function PonyList() {
         setPonyHobbiesMap(map)
       })
       .catch(onErr)
+      .finally(() => setLoading(false))
   }, [])
 
   const handleDelete = async (id: number) => {
@@ -82,21 +85,27 @@ export default function PonyList() {
           Add Pony
         </Button>
       </Box>
-      <Grid container spacing={2}>
-        {ponies.map((pony) => (
-          <Grid item xs={12} sm={6} md={3} key={pony.id}>
-            <PonyCard
-              pony={pony}
-              ponies={ponies}
-              ponyFriendships={ponyFriendships}
-              friendshipHobbies={friendshipHobbies}
-              hobbies={hobbies}
-              ponyHobbies={ponyHobbiesMap[pony.id] ?? []}
-              onDelete={handleDelete}
-            />
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Grid container spacing={2}>
+          {ponies.map((pony) => (
+            <Grid key={pony.id} size={{ xs: 12, sm: 6, md: 3 }}>
+              <PonyCard
+                pony={pony}
+                ponies={ponies}
+                ponyFriendships={ponyFriendships}
+                friendshipHobbies={friendshipHobbies}
+                hobbies={hobbies}
+                ponyHobbies={ponyHobbiesMap[pony.id] ?? []}
+                onDelete={handleDelete}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   )
 }

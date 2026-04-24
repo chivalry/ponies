@@ -43,6 +43,11 @@ def create_friendship_hobby():
         return not_found("Friendship", friendship_id)
     if not Hobby.query.get(hobby_id):
         return not_found("Hobby", hobby_id)
+    existing = FriendshipHobby.query.filter_by(
+        friendship_id=friendship_id, hobby_id=hobby_id
+    ).first()
+    if existing:
+        return jsonify({"error": "Hobby already assigned to this friendship"}), 409
     fh = FriendshipHobby(friendship_id=friendship_id, hobby_id=hobby_id)
     db.session.add(fh)
     db.session.commit()

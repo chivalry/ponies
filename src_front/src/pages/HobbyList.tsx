@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,8 +22,10 @@ import { listHobbies, createHobby, deleteHobby, type Hobby } from '../api/hobbie
 export default function HobbyList() {
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [open, setOpen] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     listHobbies()
@@ -30,6 +33,7 @@ export default function HobbyList() {
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : 'Failed to load hobbies.'),
       )
+      .finally(() => setLoading(false))
   }, [])
 
   const handleCreate = async () => {
@@ -50,6 +54,8 @@ export default function HobbyList() {
       setHobbies((prev) => prev.filter((h) => h.id !== id))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete hobby.')
+    } finally {
+      setConfirmId(null)
     }
   }
 
@@ -66,26 +72,32 @@ export default function HobbyList() {
           Add Hobby
         </Button>
       </Box>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {hobbies.map((h) => (
-            <TableRow key={h.id}>
-              <TableCell>{h.name}</TableCell>
-              <TableCell>
-                <Button size="small" color="error" onClick={() => handleDelete(h.id)}>
-                  Delete
-                </Button>
-              </TableCell>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell />
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {hobbies.map((h) => (
+              <TableRow key={h.id}>
+                <TableCell>{h.name}</TableCell>
+                <TableCell>
+                  <Button size="small" color="error" onClick={() => setConfirmId(h.id)}>
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>New Hobby</DialogTitle>
@@ -101,6 +113,25 @@ export default function HobbyList() {
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleCreate} variant="contained">
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={confirmId !== null} onClose={() => setConfirmId(null)}>
+        <DialogTitle>Delete Hobby</DialogTitle>
+        <DialogContent>
+          <Typography>
+            {`Delete "${hobbies.find((h) => h.id === confirmId)?.name}"?`}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmId(null)}>Cancel</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => confirmId !== null && handleDelete(confirmId)}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

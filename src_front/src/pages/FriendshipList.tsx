@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -184,23 +185,21 @@ export default function FriendshipList() {
   const [selectedPonies, setSelectedPonies] = useState<number[]>([])
   const [selectedHobby, setSelectedHobby] = useState<number | ''>('')
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const onErr = (err: unknown) =>
     setError(err instanceof Error ? err.message : 'Failed to load data.')
 
   useEffect(() => {
-    listFriendships()
-      .then((r) => setFriendships(r.data))
+    Promise.all([listFriendships(), listPonyFriendships(), listPonies(), listHobbies()])
+      .then(([friendshipsRes, ponyFriendshipsRes, poniesRes, hobbiesRes]) => {
+        setFriendships(friendshipsRes.data)
+        setPonyFriendships(ponyFriendshipsRes.data)
+        setPonies(poniesRes.data)
+        setHobbies(hobbiesRes.data)
+      })
       .catch(onErr)
-    listPonyFriendships()
-      .then((r) => setPonyFriendships(r.data))
-      .catch(onErr)
-    listPonies()
-      .then((r) => setPonies(r.data))
-      .catch(onErr)
-    listHobbies()
-      .then((r) => setHobbies(r.data))
-      .catch(onErr)
+      .finally(() => setLoading(false))
   }, [])
 
   const ponyName = (id: number) => ponies.find((p) => p.id === id)?.name ?? id
@@ -262,24 +261,31 @@ export default function FriendshipList() {
           variant="contained"
           size="small"
           sx={{ alignSelf: 'center' }}
+          disabled={loading}
           onClick={() => setCreateOpen(true)}
         >
           New Friendship
         </Button>
       </Box>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-        {friendships.map((f) => (
-          <FriendshipCard
-            key={f.id}
-            friendship={f}
-            ponies={friendshipPonies(f.id)}
-            ponyName={ponyName}
-            ponyImage={ponyImage}
-            onDelete={handleDelete}
-            onAddHobby={setHobbyOpen}
-          />
-        ))}
-      </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          {friendships.map((f) => (
+            <FriendshipCard
+              key={f.id}
+              friendship={f}
+              ponies={friendshipPonies(f.id)}
+              ponyName={ponyName}
+              ponyImage={ponyImage}
+              onDelete={handleDelete}
+              onAddHobby={setHobbyOpen}
+            />
+          ))}
+        </Box>
+      )}
       <CreateFriendshipDialog
         open={createOpen}
         ponies={ponies}
