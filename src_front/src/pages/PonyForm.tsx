@@ -17,6 +17,7 @@ export default function PonyForm() {
   const fileRef = useRef<HTMLInputElement>(null)
   const isEdit = Boolean(id)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [currentImagePath, setCurrentImagePath] = useState<string | null>(null)
 
   const formik = useFormik({
     initialValues: { name: '', imageUrl: '' },
@@ -52,6 +53,7 @@ export default function PonyForm() {
       getPony(Number(id))
         .then((r) => {
           setFieldValueRef.current('name', r.data.name)
+          setCurrentImagePath(r.data.image_path)
         })
         .catch((err: unknown) => {
           const msg = err instanceof Error ? err.message : 'Failed to load pony.'
@@ -84,6 +86,15 @@ export default function PonyForm() {
         <Typography variant="body2" sx={{ mb: 1 }}>
           Image (optional)
         </Typography>
+        {currentImagePath && (
+          <Box sx={{ mb: 1 }}>
+            <img
+              src={`/${currentImagePath}`}
+              alt="Current"
+              style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }}
+            />
+          </Box>
+        )}
         <input
           type="file"
           accept="image/*"
