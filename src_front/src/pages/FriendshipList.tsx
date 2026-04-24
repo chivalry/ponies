@@ -26,6 +26,7 @@ import {
 } from '../api/friendships'
 import { listPonies, type Pony } from '../api/ponies'
 import { listHobbies, type Hobby } from '../api/hobbies'
+import { useApiError } from '../hooks/useApiError'
 import { CircularImage } from '../components/CircularImage'
 
 interface FriendshipCardProps {
@@ -184,11 +185,8 @@ export default function FriendshipList() {
   const [hobbyOpen, setHobbyOpen] = useState<number | null>(null)
   const [selectedPonies, setSelectedPonies] = useState<number[]>([])
   const [selectedHobby, setSelectedHobby] = useState<number | ''>('')
-  const [error, setError] = useState<string | null>(null)
+  const { error, onErr } = useApiError('Failed to load data.')
   const [loading, setLoading] = useState(true)
-
-  const onErr = (err: unknown) =>
-    setError(err instanceof Error ? err.message : 'Failed to load data.')
 
   useEffect(() => {
     Promise.all([listFriendships(), listPonyFriendships(), listPonies(), listHobbies()])
@@ -219,7 +217,7 @@ export default function FriendshipList() {
       setSelectedPonies([])
       setCreateOpen(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create friendship.')
+      onErr(err)
     }
   }
 
@@ -229,7 +227,7 @@ export default function FriendshipList() {
       setFriendships((prev) => prev.filter((f) => f.id !== id))
       setPonyFriendships((prev) => prev.filter((pf) => pf.friendship_id !== id))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete friendship.')
+      onErr(err)
     }
   }
 
@@ -240,7 +238,7 @@ export default function FriendshipList() {
       setSelectedHobby('')
       setHobbyOpen(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign hobby.')
+      onErr(err)
     }
   }
 
@@ -273,6 +271,9 @@ export default function FriendshipList() {
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          {friendships.length === 0 && (
+            <Typography color="text.secondary">No friendships yet.</Typography>
+          )}
           {friendships.map((f) => (
             <FriendshipCard
               key={f.id}

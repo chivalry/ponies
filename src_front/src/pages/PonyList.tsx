@@ -12,6 +12,7 @@ import {
 } from '../api/friendships'
 import { listHobbies, listPonyHobbies, type Hobby } from '../api/hobbies'
 import { PonyCard } from '../components/PonyCard'
+import { useApiError } from '../hooks/useApiError'
 
 export interface PonyListData {
   ponies: Pony[]
@@ -27,11 +28,8 @@ export default function PonyList() {
   const [friendshipHobbies, setFriendshipHobbies] = useState<FriendshipHobby[]>([])
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [ponyHobbiesMap, setPonyHobbiesMap] = useState<Record<number, Hobby[]>>({})
-  const [error, setError] = useState<string | null>(null)
+  const { error, onErr } = useApiError('Failed to load data.')
   const [loading, setLoading] = useState(true)
-
-  const onErr = (err: unknown) =>
-    setError(err instanceof Error ? err.message : 'Failed to load data.')
 
   useEffect(() => {
     Promise.all([
@@ -62,7 +60,7 @@ export default function PonyList() {
       await deletePony(id)
       setPonies((prev) => prev.filter((p) => p.id !== id))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete pony.')
+      onErr(err)
     }
   }
 
@@ -89,6 +87,10 @@ export default function PonyList() {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
+      ) : ponies.length === 0 ? (
+        <Typography color="text.secondary">
+          No ponies yet. Add one to get started.
+        </Typography>
       ) : (
         <Grid container spacing={2}>
           {ponies.map((pony) => (

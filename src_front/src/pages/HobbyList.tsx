@@ -17,6 +17,7 @@ import {
   Typography,
 } from '@mui/material'
 import { listHobbies, createHobby, deleteHobby, type Hobby } from '../api/hobbies'
+import { useApiError } from '../hooks/useApiError'
 
 /** Page listing all hobbies with options to create and delete them. */
 export default function HobbyList() {
@@ -24,15 +25,13 @@ export default function HobbyList() {
   const [open, setOpen] = useState(false)
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [name, setName] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const { error, onErr } = useApiError('Failed to load hobbies.')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     listHobbies()
       .then((r) => setHobbies(r.data))
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : 'Failed to load hobbies.'),
-      )
+      .catch(onErr)
       .finally(() => setLoading(false))
   }, [])
 
@@ -44,7 +43,7 @@ export default function HobbyList() {
       setName('')
       setOpen(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create hobby.')
+      onErr(err)
     }
   }
 
@@ -53,7 +52,7 @@ export default function HobbyList() {
       await deleteHobby(id)
       setHobbies((prev) => prev.filter((h) => h.id !== id))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete hobby.')
+      onErr(err)
     } finally {
       setConfirmId(null)
     }
@@ -85,6 +84,13 @@ export default function HobbyList() {
             </TableRow>
           </TableHead>
           <TableBody>
+            {hobbies.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={2}>
+                  <Typography color="text.secondary">No hobbies yet.</Typography>
+                </TableCell>
+              </TableRow>
+            )}
             {hobbies.map((h) => (
               <TableRow key={h.id}>
                 <TableCell>{h.name}</TableCell>

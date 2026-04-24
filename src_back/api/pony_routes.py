@@ -4,6 +4,7 @@ import os
 import uuid
 
 from flask import Blueprint, current_app, jsonify, request
+from requests import RequestException
 from werkzeug.utils import secure_filename
 
 from src_back.app import db
@@ -56,8 +57,10 @@ def create_pony():
         try:
             upload_dir = current_app.config["UPLOAD_FOLDER"]
             image_path = save_image_from_url(image_url, upload_dir)
-        except Exception as e:
+        except ValueError as e:
             return bad_request(str(e))
+        except RequestException:
+            return bad_request("Failed to download image from URL")
 
     pony = Pony(name=name, image_path=image_path)
     db.session.add(pony)
@@ -110,8 +113,10 @@ def update_pony(id):
         try:
             upload_dir = current_app.config["UPLOAD_FOLDER"]
             pony.image_path = save_image_from_url(image_url, upload_dir)
-        except Exception as e:
+        except ValueError as e:
             return bad_request(str(e))
+        except RequestException:
+            return bad_request("Failed to download image from URL")
 
     db.session.commit()
     return jsonify(pony.to_dict())
