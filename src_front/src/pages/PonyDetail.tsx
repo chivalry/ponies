@@ -22,6 +22,7 @@ import {
 } from '../api/hobbies'
 import { listPonyFriendships, type PonyFriendship } from '../api/friendships'
 import { CircularImage } from '../components/CircularImage'
+import { useApiError } from '../hooks/useApiError'
 
 /** Page showing a pony's details, hobbies, and friendships with hobby assignment. */
 export default function PonyDetail() {
@@ -35,10 +36,7 @@ export default function PonyDetail() {
   const [allPonyFriendships, setAllPonyFriendships] = useState<PonyFriendship[]>([])
 
   const numId = Number(id)
-  const [error, setError] = useState<string | null>(null)
-
-  const onErr = (err: unknown) =>
-    setError(err instanceof Error ? err.message : 'Failed to load data.')
+  const { error, onErr } = useApiError('Failed to load data.')
 
   const refreshHobbyState = (id: number) => {
     Promise.all([listPonyHobbies(id), listPonyHobbyAssignments(id), listHobbies()])
@@ -69,7 +67,7 @@ export default function PonyDetail() {
       setSelectedHobbyId('')
       refreshHobbyState(numId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign hobby.')
+      onErr(err)
     }
   }
 
@@ -80,7 +78,7 @@ export default function PonyDetail() {
       await unassignHobbyFromPony(ph.id)
       refreshHobbyState(numId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to unassign hobby.')
+      onErr(err)
     }
   }
 
