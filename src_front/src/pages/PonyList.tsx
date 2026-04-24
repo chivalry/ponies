@@ -32,29 +32,25 @@ export default function PonyList() {
     setError(err instanceof Error ? err.message : 'Failed to load data.')
 
   useEffect(() => {
-    listPonies()
-      .then((r) => {
-        const loaded = r.data
+    Promise.all([
+      listPonies(),
+      listPonyFriendships(),
+      listFriendshipHobbies(),
+      listHobbies(),
+    ])
+      .then(async ([poniesRes, friendshipsRes, friendshipHobbiesRes, hobbiesRes]) => {
+        const loaded = poniesRes.data
+        const hobbyResults = await Promise.all(loaded.map((p) => listPonyHobbies(p.id)))
+        const map: Record<number, Hobby[]> = {}
+        loaded.forEach((p, i) => {
+          map[p.id] = hobbyResults[i].data
+        })
         setPonies(loaded)
-        Promise.all(loaded.map((p) => listPonyHobbies(p.id)))
-          .then((results) => {
-            const map: Record<number, Hobby[]> = {}
-            loaded.forEach((p, i) => {
-              map[p.id] = results[i].data
-            })
-            setPonyHobbiesMap(map)
-          })
-          .catch(onErr)
+        setPonyFriendships(friendshipsRes.data)
+        setFriendshipHobbies(friendshipHobbiesRes.data)
+        setHobbies(hobbiesRes.data)
+        setPonyHobbiesMap(map)
       })
-      .catch(onErr)
-    listPonyFriendships()
-      .then((r) => setPonyFriendships(r.data))
-      .catch(onErr)
-    listFriendshipHobbies()
-      .then((r) => setFriendshipHobbies(r.data))
-      .catch(onErr)
-    listHobbies()
-      .then((r) => setHobbies(r.data))
       .catch(onErr)
   }, [])
 
