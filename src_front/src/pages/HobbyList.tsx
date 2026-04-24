@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -21,26 +22,44 @@ export default function HobbyList() {
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    listHobbies().then((r) => setHobbies(r.data))
+    listHobbies()
+      .then((r) => setHobbies(r.data))
+      .catch((err: unknown) =>
+        setError(err instanceof Error ? err.message : 'Failed to load hobbies.'),
+      )
   }, [])
 
   const handleCreate = async () => {
     if (!name) return
-    const r = await createHobby({ name })
-    setHobbies((prev) => [...prev, r.data])
-    setName('')
-    setOpen(false)
+    try {
+      const r = await createHobby({ name })
+      setHobbies((prev) => [...prev, r.data])
+      setName('')
+      setOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create hobby.')
+    }
   }
 
   const handleDelete = async (id: number) => {
-    await deleteHobby(id)
-    setHobbies((prev) => prev.filter((h) => h.id !== id))
+    try {
+      await deleteHobby(id)
+      setHobbies((prev) => prev.filter((h) => h.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete hobby.')
+    }
   }
 
   return (
     <Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4">Hobbies</Typography>
         <Button variant="contained" onClick={() => setOpen(true)}>

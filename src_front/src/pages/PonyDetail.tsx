@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Box, Button, Chip, Divider, MenuItem, Select, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  MenuItem,
+  Select,
+  Typography,
+} from '@mui/material'
 import { getPony, listPonies, type Pony } from '../api/ponies'
 import {
   listHobbies,
@@ -26,39 +35,55 @@ export default function PonyDetail() {
   const [allPonyFriendships, setAllPonyFriendships] = useState<PonyFriendship[]>([])
 
   const numId = Number(id)
+  const [error, setError] = useState<string | null>(null)
+
+  const onErr = (err: unknown) =>
+    setError(err instanceof Error ? err.message : 'Failed to load data.')
 
   const refreshHobbyState = () => {
-    Promise.all([
-      listPonyHobbies(numId),
-      listPonyHobbyAssignments(numId),
-      listHobbies(),
-    ]).then(([ponyHobbiesRes, assignmentsRes, allRes]) => {
-      const assigned = new Set(ponyHobbiesRes.data.map((h) => h.id))
-      setHobbies(ponyHobbiesRes.data)
-      setPonyHobbies(assignmentsRes)
-      setAllHobbies(allRes.data.filter((h) => !assigned.has(h.id)))
-    })
+    Promise.all([listPonyHobbies(numId), listPonyHobbyAssignments(numId), listHobbies()])
+      .then(([ponyHobbiesRes, assignmentsRes, allRes]) => {
+        const assigned = new Set(ponyHobbiesRes.data.map((h) => h.id))
+        setHobbies(ponyHobbiesRes.data)
+        setPonyHobbies(assignmentsRes)
+        setAllHobbies(allRes.data.filter((h) => !assigned.has(h.id)))
+      })
+      .catch(onErr)
   }
 
   useEffect(() => {
-    getPony(numId).then((r) => setPony(r.data))
-    listPonies().then((r) => setAllPonies(r.data))
-    listPonyFriendships().then((r) => setAllPonyFriendships(r.data))
+    getPony(numId)
+      .then((r) => setPony(r.data))
+      .catch(onErr)
+    listPonies()
+      .then((r) => setAllPonies(r.data))
+      .catch(onErr)
+    listPonyFriendships()
+      .then((r) => setAllPonyFriendships(r.data))
+      .catch(onErr)
     refreshHobbyState()
   }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAssign = async () => {
     if (!selectedHobbyId) return
-    await assignHobbyToPony(numId, selectedHobbyId as number)
-    setSelectedHobbyId('')
-    refreshHobbyState()
+    try {
+      await assignHobbyToPony(numId, selectedHobbyId as number)
+      setSelectedHobbyId('')
+      refreshHobbyState()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to assign hobby.')
+    }
   }
 
   const handleUnassign = async (hobbyId: number) => {
     const ph = ponyHobbies.find((p) => p.hobby_id === hobbyId)
     if (!ph) return
-    await unassignHobbyFromPony(ph.id)
-    refreshHobbyState()
+    try {
+      await unassignHobbyFromPony(ph.id)
+      refreshHobbyState()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to unassign hobby.')
+    }
   }
 
   const myFriendshipIds = allPonyFriendships
@@ -70,13 +95,23 @@ export default function PonyDetail() {
     .map((pf) => allPonies.find((p) => p.id === pf.pony_id))
     .filter((p): p is Pony => p !== undefined)
 
-  if (!pony) return <Typography>Loading…</Typography>
+  if (!pony)
+    return error ? (
+      <Alert severity="error">{error}</Alert>
+    ) : (
+      <Typography>Loading…</Typography>
+    )
 
   return (
     <Box sx={{ maxWidth: 800 }}>
       <Typography variant="h4" sx={{ mb: 2 }}>
         {pony.name}
       </Typography>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start' }}>
         {pony.image_path && (
           <Box sx={{ flexShrink: 0 }}>

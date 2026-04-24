@@ -96,6 +96,9 @@ def save_image_from_url(url, upload_dir):
     Raises:
         ValueError: If the image type is not supported or the image exceeds size limits.
     """
+    parsed_url = http_requests.utils.urlparse(url)
+    if parsed_url.scheme not in ("http", "https"):
+        raise ValueError(f"URL scheme must be http or https, got: {parsed_url.scheme!r}")
     resp = http_requests.get(url, timeout=10, stream=True)
     resp.raise_for_status()
     content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
@@ -105,10 +108,11 @@ def save_image_from_url(url, upload_dir):
     content_length = resp.headers.get("Content-Length")
     if content_length is not None:
         try:
-            if int(content_length) > MAX_IMAGE_BYTES:
-                raise ValueError("Image exceeds 10 MB limit (Content-Length)")
+            parsed_length = int(content_length)
         except ValueError:
-            pass
+            parsed_length = None
+        if parsed_length is not None and parsed_length > MAX_IMAGE_BYTES:
+            raise ValueError("Image exceeds 10 MB limit (Content-Length)")
     os.makedirs(upload_dir, exist_ok=True)
     filename = secure_filename(f"{uuid_lib.uuid4()}.{ext}")
     dest = os.path.join(upload_dir, filename)

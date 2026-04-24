@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -182,42 +183,79 @@ export default function FriendshipList() {
   const [hobbyOpen, setHobbyOpen] = useState<number | null>(null)
   const [selectedPonies, setSelectedPonies] = useState<number[]>([])
   const [selectedHobby, setSelectedHobby] = useState<number | ''>('')
+  const [error, setError] = useState<string | null>(null)
+
+  const onErr = (err: unknown) =>
+    setError(err instanceof Error ? err.message : 'Failed to load data.')
+
   useEffect(() => {
-    listFriendships().then((r) => setFriendships(r.data))
-    listPonyFriendships().then((r) => setPonyFriendships(r.data))
-    listPonies().then((r) => setPonies(r.data))
-    listHobbies().then((r) => setHobbies(r.data))
+    listFriendships()
+      .then((r) => setFriendships(r.data))
+      .catch(onErr)
+    listPonyFriendships()
+      .then((r) => setPonyFriendships(r.data))
+      .catch(onErr)
+    listPonies()
+      .then((r) => setPonies(r.data))
+      .catch(onErr)
+    listHobbies()
+      .then((r) => setHobbies(r.data))
+      .catch(onErr)
   }, [])
+
   const ponyName = (id: number) => ponies.find((p) => p.id === id)?.name ?? id
+
   const ponyImage = (id: number) => ponies.find((p) => p.id === id)?.image_path ?? null
+
   const friendshipPonies = (fid: number) =>
     ponyFriendships.filter((pf) => pf.friendship_id === fid)
+
   const handleCreate = async () => {
     if (selectedPonies.length !== 2) return
-    const r = await createFriendship({ pony_ids: selectedPonies })
-    setFriendships((prev) => [...prev, r.data])
-    const pfs = await listPonyFriendships()
-    setPonyFriendships(pfs.data)
-    setSelectedPonies([])
-    setCreateOpen(false)
+    try {
+      const r = await createFriendship({ pony_ids: selectedPonies })
+      setFriendships((prev) => [...prev, r.data])
+      const pfs = await listPonyFriendships()
+      setPonyFriendships(pfs.data)
+      setSelectedPonies([])
+      setCreateOpen(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create friendship.')
+    }
   }
+
   const handleDelete = async (id: number) => {
-    await deleteFriendship(id)
-    setFriendships((prev) => prev.filter((f) => f.id !== id))
-    setPonyFriendships((prev) => prev.filter((pf) => pf.friendship_id !== id))
+    try {
+      await deleteFriendship(id)
+      setFriendships((prev) => prev.filter((f) => f.id !== id))
+      setPonyFriendships((prev) => prev.filter((pf) => pf.friendship_id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete friendship.')
+    }
   }
+
   const handleAssignHobby = async () => {
     if (!hobbyOpen || !selectedHobby) return
-    await assignHobbyToFriendship(hobbyOpen, { hobby_id: selectedHobby as number })
-    setSelectedHobby('')
-    setHobbyOpen(null)
+    try {
+      await assignHobbyToFriendship(hobbyOpen, { hobby_id: selectedHobby as number })
+      setSelectedHobby('')
+      setHobbyOpen(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to assign hobby.')
+    }
   }
+
   const togglePony = (id: number) =>
     setSelectedPonies((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     )
   return (
     <Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Typography variant="h4">Friendships</Typography>
         <Button
