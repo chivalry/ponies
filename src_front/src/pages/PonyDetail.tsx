@@ -40,36 +40,34 @@ export default function PonyDetail() {
   const onErr = (err: unknown) =>
     setError(err instanceof Error ? err.message : 'Failed to load data.')
 
-  const refreshHobbyState = () => {
-    Promise.all([listPonyHobbies(numId), listPonyHobbyAssignments(numId), listHobbies()])
+  const refreshHobbyState = (id: number) => {
+    Promise.all([listPonyHobbies(id), listPonyHobbyAssignments(id), listHobbies()])
       .then(([ponyHobbiesRes, assignmentsRes, allRes]) => {
         const assigned = new Set(ponyHobbiesRes.data.map((h) => h.id))
         setHobbies(ponyHobbiesRes.data)
-        setPonyHobbies(assignmentsRes)
+        setPonyHobbies(assignmentsRes.data)
         setAllHobbies(allRes.data.filter((h) => !assigned.has(h.id)))
       })
       .catch(onErr)
   }
 
   useEffect(() => {
-    getPony(numId)
-      .then((r) => setPony(r.data))
+    Promise.all([getPony(numId), listPonies(), listPonyFriendships()])
+      .then(([ponyRes, poniesRes, friendshipsRes]) => {
+        setPony(ponyRes.data)
+        setAllPonies(poniesRes.data)
+        setAllPonyFriendships(friendshipsRes.data)
+      })
       .catch(onErr)
-    listPonies()
-      .then((r) => setAllPonies(r.data))
-      .catch(onErr)
-    listPonyFriendships()
-      .then((r) => setAllPonyFriendships(r.data))
-      .catch(onErr)
-    refreshHobbyState()
-  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
+    refreshHobbyState(numId)
+  }, [numId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAssign = async () => {
     if (!selectedHobbyId) return
     try {
       await assignHobbyToPony(numId, selectedHobbyId as number)
       setSelectedHobbyId('')
-      refreshHobbyState()
+      refreshHobbyState(numId)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to assign hobby.')
     }
@@ -80,7 +78,7 @@ export default function PonyDetail() {
     if (!ph) return
     try {
       await unassignHobbyFromPony(ph.id)
-      refreshHobbyState()
+      refreshHobbyState(numId)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to unassign hobby.')
     }

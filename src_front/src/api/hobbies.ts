@@ -26,10 +26,8 @@ export const updateHobby = (id: number, data: { name: string }) =>
 export const deleteHobby = (id: number) => client.delete(`/hobbies/${id}/`)
 export const listPonyHobbies = (ponyId: number) =>
   client.get<Hobby[]>(`/ponies/${ponyId}/hobbies/`)
-export const listPonyHobbyAssignments = (ponyId: number): Promise<PonyHobby[]> =>
-  client
-    .get<PonyHobby[]>('/pony_hobbies/')
-    .then((r) => r.data.filter((ph) => ph.pony_id === ponyId))
+export const listPonyHobbyAssignments = (ponyId: number) =>
+  client.get<PonyHobby[]>('/pony_hobbies/', { params: { pony_id: ponyId } })
 export const assignHobbyToPony = (ponyId: number, hobbyId: number) =>
   client.post<PonyHobby>('/pony_hobbies/', { pony_id: ponyId, hobby_id: hobbyId })
 export const unassignHobbyFromPony = (ponyHobbyId: number) =>

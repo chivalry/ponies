@@ -44,18 +44,21 @@ export default function PonyForm() {
     },
   })
 
+  const setFieldValueRef = useRef(formik.setFieldValue)
+  setFieldValueRef.current = formik.setFieldValue
+
   useEffect(() => {
     if (isEdit) {
       getPony(Number(id))
         .then((r) => {
-          formik.setFieldValue('name', r.data.name)
+          setFieldValueRef.current('name', r.data.name)
         })
         .catch((err: unknown) => {
           const msg = err instanceof Error ? err.message : 'Failed to load pony.'
           setSubmitError(msg)
         })
     }
-  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id, isEdit])
 
   return (
     <Box component="form" onSubmit={formik.handleSubmit} sx={{ maxWidth: 480 }}>
