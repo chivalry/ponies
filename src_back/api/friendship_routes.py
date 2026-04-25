@@ -67,19 +67,15 @@ def get_friendship(id):
 @friendship_bp.route("/<int:id>/", methods=["PUT"])
 def update_friendship(id):
     """
-    Update a friendship by ID (no-op).
+    Return 405 — friendships have no updatable fields.
 
     Args:
         id (int): The ID of the friendship.
 
     Returns:
-        Response: Flask JSON response with the updated friendship or 404 error.
+        Response: Flask JSON response with 405 status.
     """
-    friendship = Friendship.query.get(id)
-    if not friendship:
-        return not_found("Friendship", id)
-    db.session.commit()
-    return jsonify(friendship.to_dict())
+    return jsonify({"error": "Friendships have no updatable fields"}), 405
 
 
 @friendship_bp.route("/<int:id>/", methods=["DELETE"])

@@ -26,8 +26,12 @@ class Pony(BaseMixin, db.Model):
     __tablename__ = "ponies"
     name = db.Column(db.String(80), nullable=False)
     image_path = db.Column(db.String(255))
-    pony_hobbies = db.relationship("PonyHobby", backref="pony", lazy=True)
-    pony_friendships = db.relationship("PonyFriendship", backref="pony", lazy=True)
+    pony_hobbies = db.relationship(
+        "PonyHobby", backref="pony", lazy=True, cascade="all, delete-orphan"
+    )
+    pony_friendships = db.relationship(
+        "PonyFriendship", backref="pony", lazy=True, cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         """Return a dict representation of this pony."""
@@ -39,8 +43,12 @@ class Hobby(BaseMixin, db.Model):
 
     __tablename__ = "hobbies"
     name = db.Column(db.String(80), nullable=False)
-    friendship_hobbies = db.relationship("FriendshipHobby", backref="hobby", lazy=True)
-    hobby_hobbies = db.relationship("PonyHobby", backref="hobby", lazy=True)
+    friendship_hobbies = db.relationship(
+        "FriendshipHobby", backref="hobby", lazy=True, cascade="all, delete-orphan"
+    )
+    hobby_hobbies = db.relationship(
+        "PonyHobby", backref="hobby", lazy=True, cascade="all, delete-orphan"
+    )
 
     def to_dict(self):
         """Return a dict representation of this hobby."""
@@ -52,9 +60,17 @@ class Friendship(BaseMixin, db.Model):
 
     __tablename__ = "friendships"
     friendship_hobbies = db.relationship(
-        "FriendshipHobby", backref="friendship", lazy=True
+        "FriendshipHobby",
+        backref="friendship",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
-    pony_friendships = db.relationship("PonyFriendship", backref="friendship", lazy=True)
+    pony_friendships = db.relationship(
+        "PonyFriendship",
+        backref="friendship",
+        lazy=True,
+        cascade="all, delete-orphan",
+    )
 
     def to_dict(self):
         """Return a dict representation of this friendship."""
@@ -65,8 +81,12 @@ class FriendshipHobby(BaseMixin, db.Model):
     """Join table associating a friendship with a hobby."""
 
     __tablename__ = "friendship_hobbies"
-    friendship_id = db.Column(db.Integer, db.ForeignKey("friendships.id"), nullable=False)
-    hobby_id = db.Column(db.Integer, db.ForeignKey("hobbies.id"), nullable=False)
+    friendship_id = db.Column(
+        db.Integer, db.ForeignKey("friendships.id", ondelete="CASCADE"), nullable=False
+    )
+    hobby_id = db.Column(
+        db.Integer, db.ForeignKey("hobbies.id", ondelete="CASCADE"), nullable=False
+    )
 
     def to_dict(self):
         """Return a dict representation of this friendship-hobby association."""
@@ -82,8 +102,12 @@ class PonyHobby(BaseMixin, db.Model):
 
     __tablename__ = "pony_hobbies"
     __table_args__ = (db.UniqueConstraint("pony_id", "hobby_id"),)
-    pony_id = db.Column(db.Integer, db.ForeignKey("ponies.id"), nullable=False)
-    hobby_id = db.Column(db.Integer, db.ForeignKey("hobbies.id"), nullable=False)
+    pony_id = db.Column(
+        db.Integer, db.ForeignKey("ponies.id", ondelete="CASCADE"), nullable=False
+    )
+    hobby_id = db.Column(
+        db.Integer, db.ForeignKey("hobbies.id", ondelete="CASCADE"), nullable=False
+    )
 
     def to_dict(self):
         """Return a dict representation of this pony-hobby association."""
@@ -94,8 +118,12 @@ class PonyFriendship(BaseMixin, db.Model):
     """Join table associating a pony with a friendship."""
 
     __tablename__ = "pony_friendships"
-    friendship_id = db.Column(db.Integer, db.ForeignKey("friendships.id"), nullable=False)
-    pony_id = db.Column(db.Integer, db.ForeignKey("ponies.id"), nullable=False)
+    friendship_id = db.Column(
+        db.Integer, db.ForeignKey("friendships.id", ondelete="CASCADE"), nullable=False
+    )
+    pony_id = db.Column(
+        db.Integer, db.ForeignKey("ponies.id", ondelete="CASCADE"), nullable=False
+    )
 
     def to_dict(self):
         """Return a dict representation of this pony-friendship association."""

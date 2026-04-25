@@ -25,9 +25,16 @@ def create_app():
     app = Flask(__name__, static_folder=static_folder, static_url_path="")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev")
+    secret_key = os.environ.get("SECRET_KEY", "dev")
+    is_dev = os.environ.get("FLASK_ENV") == "development"
+    if secret_key in ("dev", "change-me") and not is_dev:
+        raise RuntimeError(
+            "SECRET_KEY must be set to a secure value in non-development environments"
+        )
+    app.config["SECRET_KEY"] = secret_key
     app.config["UPLOAD_FOLDER"] = os.environ.get("UPLOAD_FOLDER", "src_back/uploads")
-    CORS(app)
+    allowed_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "*")
+    CORS(app, origins=allowed_origins)
     db.init_app(app)
     import src_back.models  # noqa: F401 — register models with SQLAlchemy
 

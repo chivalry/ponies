@@ -58,7 +58,9 @@ export default function PonyDetail() {
       })
       .catch(onErr)
     refreshHobbyState(numId)
-  }, [numId]) // eslint-disable-line react-hooks/exhaustive-deps
+    // refreshHobbyState is recreated each render; adding it would loop infinitely.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numId])
 
   const handleAssign = async () => {
     if (!selectedHobbyId) return

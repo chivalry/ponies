@@ -16,8 +16,9 @@ export class ErrorBoundary extends Component<Props, State> {
     return { error }
   }
 
-  componentDidCatch() {
-    // Wire up an error reporting service here if needed.
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    // eslint-disable-next-line no-console
+    console.error('ErrorBoundary caught:', error, info.componentStack)
   }
 
   render() {
