@@ -3,8 +3,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import PonyList from '../pages/PonyList'
 import * as poniesApi from '../api/ponies'
+import * as friendshipsApi from '../api/friendships'
+import * as hobbiesApi from '../api/hobbies'
 
 vi.mock('../api/ponies')
+vi.mock('../api/friendships')
+vi.mock('../api/hobbies')
 
 const mockListPonies = vi.mocked(poniesApi.listPonies)
 const mockDeletePony = vi.mocked(poniesApi.deletePony)
@@ -23,6 +27,10 @@ beforeEach(() => {
     ],
   } as never)
   mockDeletePony.mockResolvedValue({} as never)
+  vi.mocked(friendshipsApi.listPonyFriendships).mockResolvedValue({ data: [] } as never)
+  vi.mocked(friendshipsApi.listFriendshipHobbies).mockResolvedValue({ data: [] } as never)
+  vi.mocked(hobbiesApi.listHobbies).mockResolvedValue({ data: [] } as never)
+  vi.mocked(hobbiesApi.listPonyHobbies).mockResolvedValue({ data: [] } as never)
 })
 
 describe('PonyList', () => {
