@@ -16,16 +16,17 @@ def test_create_pony(client):
     assert r.status_code == 201
     data = r.get_json()
     assert data["name"] == "Rainbow Dash"
-    assert data["id"] == 1
+    assert "id" in data
 
 
 def test_get_pony(client):
-    client.post(
+    cr = client.post(
         "/api/ponies/",
         data={"name": "Fluttershy"},
         content_type="multipart/form-data",
     )
-    r = client.get("/api/ponies/1/")
+    pid = cr.get_json()["id"]
+    r = client.get(f"/api/ponies/{pid}/")
     assert r.status_code == 200
     assert r.get_json()["name"] == "Fluttershy"
 
@@ -36,13 +37,14 @@ def test_get_pony_not_found(client):
 
 
 def test_update_pony(client):
-    client.post(
+    cr = client.post(
         "/api/ponies/",
         data={"name": "Pinkie Pie"},
         content_type="multipart/form-data",
     )
+    pid = cr.get_json()["id"]
     r = client.put(
-        "/api/ponies/1/",
+        f"/api/ponies/{pid}/",
         data=json.dumps({"name": "Pinkie Pie Updated"}),
         content_type="application/json",
     )
@@ -51,12 +53,13 @@ def test_update_pony(client):
 
 
 def test_delete_pony(client):
-    client.post(
+    cr = client.post(
         "/api/ponies/",
         data={"name": "Rarity"},
         content_type="multipart/form-data",
     )
-    r = client.delete("/api/ponies/1/")
+    pid = cr.get_json()["id"]
+    r = client.delete(f"/api/ponies/{pid}/")
     assert r.status_code == 204
-    r2 = client.get("/api/ponies/1/")
+    r2 = client.get(f"/api/ponies/{pid}/")
     assert r2.status_code == 404

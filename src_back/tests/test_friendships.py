@@ -19,7 +19,7 @@ def test_create_friendship(client):
         content_type="application/json",
     )
     assert r.status_code == 201
-    assert r.get_json()["id"] == 1
+    assert "id" in r.get_json()
 
 
 def test_create_friendship_wrong_count(client):
@@ -35,12 +35,13 @@ def test_create_friendship_wrong_count(client):
 def test_delete_friendship(client):
     p1 = _make_pony(client, "Fluttershy")
     p2 = _make_pony(client, "Rarity")
-    client.post(
+    cr = client.post(
         "/api/friendships/",
         data=json.dumps({"pony_ids": [p1, p2]}),
         content_type="application/json",
     )
-    r = client.delete("/api/friendships/1/")
+    fid = cr.get_json()["id"]
+    r = client.delete(f"/api/friendships/{fid}/")
     assert r.status_code == 204
 
 

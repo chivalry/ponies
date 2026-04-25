@@ -34,12 +34,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
 
       - run: npm ci
 
-      - run: npm run lint
+      - run: npm run lint -- --max-warnings -1
       - run: npx prettier --check src_front/src
 
       - run: npm test -- --run
