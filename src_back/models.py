@@ -20,12 +20,29 @@ class BaseMixin:
         }
 
 
+class Generation(BaseMixin, db.Model):
+    """A generation label (e.g. G4) that ponies can be assigned to."""
+
+    __tablename__ = "generations"
+    name = db.Column(db.String(80), nullable=False)
+    ponies = db.relationship("Pony", backref="generation", lazy=True)
+
+    def to_dict(self):
+        """Return a dict representation of this generation."""
+        return {**self.base_dict(), "name": self.name}
+
+
 class Pony(BaseMixin, db.Model):
     """A pony with an optional image and associated hobbies and friendships."""
 
     __tablename__ = "ponies"
     name = db.Column(db.String(80), nullable=False)
     image_path = db.Column(db.String(255))
+    generation_id = db.Column(
+        db.Integer,
+        db.ForeignKey("generations.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     pony_hobbies = db.relationship(
         "PonyHobby", backref="pony", lazy=True, cascade="all, delete-orphan"
     )
@@ -35,7 +52,12 @@ class Pony(BaseMixin, db.Model):
 
     def to_dict(self):
         """Return a dict representation of this pony."""
-        return {**self.base_dict(), "name": self.name, "image_path": self.image_path}
+        return {
+            **self.base_dict(),
+            "name": self.name,
+            "image_path": self.image_path,
+            "generation_id": self.generation_id,
+        }
 
 
 class Hobby(BaseMixin, db.Model):

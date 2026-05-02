@@ -8,6 +8,7 @@ from src_back.app import create_app, db
 from src_back.models import (
     Friendship,
     FriendshipHobby,
+    Generation,
     Hobby,
     Pony,
     PonyFriendship,
@@ -81,6 +82,9 @@ def seed():
         return
     upload_folder = os.environ.get("UPLOAD_FOLDER", "src_back/uploads")
     os.makedirs(upload_folder, exist_ok=True)
+    g4 = Generation(name="G4")
+    db.session.add(g4)
+    db.session.flush()
     hobby_by_name = {}
     for name in HOBBIES:
         hobby = Hobby(name=name)
@@ -91,6 +95,7 @@ def seed():
         pony = Pony(
             name=p["name"],
             image_path=_copy_image(p["image"], upload_folder),
+            generation_id=g4.id,
         )
         db.session.add(pony)
         pony_by_name[p["name"]] = pony

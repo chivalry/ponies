@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material'
+import { useParams } from 'react-router-dom'
+import { Alert, Box, CircularProgress, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid2'
-
-import { listPonies, deletePony, type Pony } from '../api/ponies'
+import { listGenerationPonies, type Generation } from '../api/generations'
+import { listGenerations } from '../api/generations'
+import { deletePony, type Pony } from '../api/ponies'
 import {
   listPonyFriendships,
   listFriendshipHobbies,
@@ -11,53 +12,48 @@ import {
   type FriendshipHobby,
 } from '../api/friendships'
 import { listHobbies, listPonyHobbies, type Hobby } from '../api/hobbies'
-import { listGenerations, type Generation } from '../api/generations'
 import { PonyCard } from '../components/PonyCard'
 import { useApiError } from '../hooks/useApiError'
 
-export interface PonyListData {
-  ponies: Pony[]
-  ponyFriendships: PonyFriendship[]
-  friendshipHobbies: FriendshipHobby[]
-  hobbies: Hobby[]
-  ponyHobbies: Hobby[][]
-}
+/** Shows all ponies belonging to a single generation, using the same grid as PonyList. */
+export default function GenerationDetail() {
+  const { id } = useParams<{ id: string }>()
+  const generationId = Number(id)
 
-export default function PonyList() {
+  const [generation, setGeneration] = useState<Generation | null>(null)
   const [ponies, setPonies] = useState<Pony[]>([])
   const [ponyFriendships, setPonyFriendships] = useState<PonyFriendship[]>([])
   const [friendshipHobbies, setFriendshipHobbies] = useState<FriendshipHobby[]>([])
   const [hobbies, setHobbies] = useState<Hobby[]>([])
-  const [generations, setGenerations] = useState<Generation[]>([])
   const [ponyHobbiesMap, setPonyHobbiesMap] = useState<Record<number, Hobby[]>>({})
   const { error, onErr } = useApiError('Failed to load data.')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
-      listPonies(),
+      listGenerations(),
+      listGenerationPonies(generationId),
       listPonyFriendships(),
       listFriendshipHobbies(),
       listHobbies(),
-      listGenerations(),
     ])
-      .then(async ([poniesRes, friendshipsRes, fhRes, hobbiesRes, genRes]) => {
+      .then(async ([genRes, poniesRes, friendshipsRes, fhRes, hobbiesRes]) => {
         const loaded = poniesRes.data
         const hobbyResults = await Promise.all(loaded.map((p) => listPonyHobbies(p.id)))
         const map: Record<number, Hobby[]> = {}
         loaded.forEach((p, i) => {
           map[p.id] = hobbyResults[i].data
         })
+        setGeneration(genRes.data.find((g) => g.id === generationId) ?? null)
         setPonies(loaded)
         setPonyFriendships(friendshipsRes.data)
         setFriendshipHobbies(fhRes.data)
         setHobbies(hobbiesRes.data)
-        setGenerations(genRes.data)
         setPonyHobbiesMap(map)
       })
       .catch(onErr)
       .finally(() => setLoading(false))
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [generationId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async (id: number) => {
     try {
@@ -75,26 +71,15 @@ export default function PonyList() {
           {error}
         </Alert>
       )}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Ponies</Typography>
-        <Button
-          variant="contained"
-          component={Link}
-          to="/ponies/new"
-          size="small"
-          sx={{ alignSelf: 'center' }}
-        >
-          Add Pony
-        </Button>
-      </Box>
+      <Typography variant="h4" sx={{ mb: 2 }}>
+        {generation?.name ?? 'Generation'}
+      </Typography>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
         </Box>
       ) : ponies.length === 0 ? (
-        <Typography color="text.secondary">
-          No ponies yet. Add one to get started.
-        </Typography>
+        <Typography color="text.secondary">No ponies in this generation.</Typography>
       ) : (
         <Grid container spacing={2}>
           {ponies.map((pony) => (
@@ -106,7 +91,7 @@ export default function PonyList() {
                 friendshipHobbies={friendshipHobbies}
                 hobbies={hobbies}
                 ponyHobbies={ponyHobbiesMap[pony.id] ?? []}
-                generations={generations}
+                showGeneration={false}
                 onDelete={handleDelete}
               />
             </Grid>

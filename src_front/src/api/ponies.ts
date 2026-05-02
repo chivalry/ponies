@@ -4,6 +4,7 @@ export interface Pony {
   id: number
   name: string
   image_path: string | null
+  generation_id: number | null
   uuid: string
   created_timestamp: string
   modified_timestamp: string

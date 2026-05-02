@@ -92,9 +92,17 @@ def update_pony(id):
     if not pony:
         return not_found("Pony", id)
 
-    name = request.form.get("name") or (request.get_json(silent=True) or {}).get("name")
+    data = request.get_json(silent=True) or {}
+    name = request.form.get("name") or data.get("name")
     if name:
         pony.name = name
+
+    if "generation_id" in request.form:
+        raw = request.form.get("generation_id")
+        pony.generation_id = int(raw) if raw else None
+    elif "generation_id" in data:
+        raw = data["generation_id"]
+        pony.generation_id = int(raw) if raw is not None else None
 
     if "image" in request.files:
         file = request.files["image"]
@@ -106,10 +114,7 @@ def update_pony(id):
             dest = os.path.join(upload_dir, filename)
             file.save(dest)
             pony.image_path = f"uploads/{filename}"
-    elif image_url := (
-        request.form.get("image_url")
-        or (request.get_json(silent=True) or {}).get("image_url")
-    ):
+    elif image_url := (request.form.get("image_url") or data.get("image_url")):
         try:
             upload_dir = current_app.config["UPLOAD_FOLDER"]
             pony.image_path = save_image_from_url(image_url, upload_dir)

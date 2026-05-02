@@ -21,11 +21,14 @@ import PonyDetail from './pages/PonyDetail'
 import PonyForm from './pages/PonyForm'
 import HobbyList from './pages/HobbyList'
 import FriendshipList from './pages/FriendshipList'
+import GenerationList from './pages/GenerationList'
+import GenerationDetail from './pages/GenerationDetail'
 
 const NAV_LINKS = [
   { label: 'Ponies', to: '/' },
   { label: 'Hobbies', to: '/hobbies' },
   { label: 'Friendships', to: '/friendships' },
+  { label: 'Generations', to: '/generations' },
 ]
 
 /** Root application component providing the nav bar and client-side routes. */
@@ -85,6 +88,8 @@ export default function App() {
           <Route path="/ponies/:id" element={<PonyDetail />} />
           <Route path="/hobbies" element={<HobbyList />} />
           <Route path="/friendships" element={<FriendshipList />} />
+          <Route path="/generations" element={<GenerationList />} />
+          <Route path="/generations/:id" element={<GenerationDetail />} />
         </Routes>
       </Box>
     </>

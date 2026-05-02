@@ -12,6 +12,7 @@ import {
 import type { Pony } from '../api/ponies'
 import type { PonyFriendship, FriendshipHobby } from '../api/friendships'
 import type { Hobby } from '../api/hobbies'
+import type { Generation } from '../api/generations'
 import { CircularImage } from './CircularImage'
 
 interface Props {
@@ -21,6 +22,8 @@ interface Props {
   friendshipHobbies: FriendshipHobby[]
   hobbies: Hobby[]
   ponyHobbies: Hobby[]
+  generations?: Generation[]
+  showGeneration?: boolean
   onDelete: (id: number) => void
 }
 
@@ -41,6 +44,8 @@ export const PonyCard = ({
   friendshipHobbies,
   hobbies,
   ponyHobbies,
+  generations = [],
+  showGeneration = true,
   onDelete,
 }: Props) => {
   const theme = useTheme()
@@ -83,6 +88,16 @@ export const PonyCard = ({
             <Typography variant="h6" sx={{ mb: 1 }}>
               {pony.name}
             </Typography>
+
+            {showGeneration && pony.generation_id && (
+              <Box sx={{ mb: 1 }}>
+                <Chip
+                  label={generations.find((g) => g.id === pony.generation_id)?.name ?? ''}
+                  size="small"
+                  color="secondary"
+                />
+              </Box>
+            )}
 
             {friends.length > 0 && (
               <Box sx={{ mb: 1 }}>

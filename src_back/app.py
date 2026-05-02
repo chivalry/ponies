@@ -41,6 +41,7 @@ def create_app():
     migrate.init_app(app, db)
     from src_back.api.friendship_hobby_routes import friendship_hobby_bp
     from src_back.api.friendship_routes import friendship_bp
+    from src_back.api.generation_routes import generation_bp
     from src_back.api.hobby_routes import hobby_bp
     from src_back.api.pony_friendship_routes import pony_friendship_bp
     from src_back.api.pony_hobby_routes import pony_hobby_bp
@@ -52,6 +53,7 @@ def create_app():
     app.register_blueprint(friendship_hobby_bp)
     app.register_blueprint(pony_friendship_bp)
     app.register_blueprint(pony_hobby_bp)
+    app.register_blueprint(generation_bp)
 
     @app.route("/uploads/<path:filename>")
     def serve_upload(filename):

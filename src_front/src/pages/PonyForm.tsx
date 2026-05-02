@@ -1,13 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Alert, Box, Button, TextField, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { getPony, createPony, updatePony } from '../api/ponies'
+import { listGenerations, type Generation } from '../api/generations'
 
 const schema = Yup.object({
   name: Yup.string().required('Name is required'),
   imageUrl: Yup.string().url('Must be a valid URL').optional(),
+  generationId: Yup.number().nullable().optional(),
 })
 
 /** Form for creating a new pony or editing an existing one, with image upload or URL. */
@@ -18,14 +30,23 @@ export default function PonyForm() {
   const isEdit = Boolean(id)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [currentImagePath, setCurrentImagePath] = useState<string | null>(null)
+  const [generations, setGenerations] = useState<Generation[]>([])
+
+  useEffect(() => {
+    listGenerations()
+      .then((r) => setGenerations(r.data))
+      .catch(() => {})
+  }, [])
 
   const formik = useFormik({
-    initialValues: { name: '', imageUrl: '' },
+    initialValues: { name: '', imageUrl: '', generationId: '' as number | '' },
     validationSchema: schema,
     onSubmit: async (values) => {
       setSubmitError(null)
       const fd = new FormData()
       fd.append('name', values.name)
+      const genId = values.generationId !== '' ? String(values.generationId) : ''
+      fd.append('generation_id', genId)
       if (fileRef.current?.files?.[0]) {
         fd.append('image', fileRef.current.files[0])
       } else if (values.imageUrl) {
@@ -53,6 +74,7 @@ export default function PonyForm() {
       getPony(Number(id))
         .then((r) => {
           setFieldValueRef.current('name', r.data.name)
+          setFieldValueRef.current('generationId', r.data.generation_id ?? '')
           setCurrentImagePath(r.data.image_path)
         })
         .catch((err: unknown) => {
@@ -115,6 +137,22 @@ export default function PonyForm() {
         helperText={formik.touched.imageUrl && formik.errors.imageUrl}
         sx={{ mb: 2 }}
       />
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel>Generation (optional)</InputLabel>
+        <Select
+          name="generationId"
+          value={formik.values.generationId}
+          label="Generation (optional)"
+          onChange={formik.handleChange}
+        >
+          <MenuItem value="">None</MenuItem>
+          {generations.map((g) => (
+            <MenuItem key={g.id} value={g.id}>
+              {g.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <Button type="submit" variant="contained" disabled={formik.isSubmitting}>
         {isEdit ? 'Save' : 'Create'}
       </Button>
