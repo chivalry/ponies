@@ -85,6 +85,7 @@ interface CreateFriendshipDialogProps {
   open: boolean
   ponies: Pony[]
   selectedPonies: number[]
+  disabledPonies: Set<number>
   onTogglePony: (id: number) => void
   onCreate: () => void
   onClose: () => void
@@ -95,6 +96,7 @@ const CreateFriendshipDialog = ({
   open,
   ponies,
   selectedPonies,
+  disabledPonies,
   onTogglePony,
   onCreate,
   onClose,
@@ -113,6 +115,7 @@ const CreateFriendshipDialog = ({
             onClick={() => onTogglePony(p.id)}
             color={selectedPonies.includes(p.id) ? 'primary' : 'default'}
             clickable
+            disabled={disabledPonies.has(p.id)}
           />
         ))}
       </Box>
@@ -246,6 +249,17 @@ export default function FriendshipList() {
     setSelectedPonies((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     )
+
+  const disabledPonies: Set<number> = (() => {
+    if (selectedPonies.length !== 1) return new Set()
+    const firstId = selectedPonies[0]
+    const friendshipIds = ponyFriendships
+      .filter((pf) => pf.pony_id === firstId)
+      .map((pf) => pf.friendship_id)
+    const inSharedFriendship = (pf: PonyFriendship) =>
+      friendshipIds.includes(pf.friendship_id) && pf.pony_id !== firstId
+    return new Set(ponyFriendships.filter(inSharedFriendship).map((pf) => pf.pony_id))
+  })()
   return (
     <Box>
       {error && (
@@ -291,6 +305,7 @@ export default function FriendshipList() {
         open={createOpen}
         ponies={ponies}
         selectedPonies={selectedPonies}
+        disabledPonies={disabledPonies}
         onTogglePony={togglePony}
         onCreate={handleCreate}
         onClose={() => setCreateOpen(false)}
