@@ -100,7 +100,9 @@ def save_image_from_url(url, upload_dir):
     if parsed_url.scheme not in ("http", "https"):
         raise ValueError(f"URL scheme must be http or https, got: {parsed_url.scheme!r}")
     # Redirects are followed by default; max_redirects=3 limits open-redirect abuse.
-    resp = http_requests.get(url, timeout=10, stream=True, max_redirects=3)
+    session = http_requests.Session()
+    session.max_redirects = 3
+    resp = session.get(url, timeout=10, stream=True)
     resp.raise_for_status()
     content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
     ext = CONTENT_TYPE_TO_EXT.get(content_type)
