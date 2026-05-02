@@ -102,6 +102,7 @@ def save_image_from_url(url, upload_dir):
     # Redirects are followed by default; max_redirects=3 limits open-redirect abuse.
     session = http_requests.Session()
     session.max_redirects = 3
+    session.headers["User-Agent"] = "ponies-app/1.0"
     resp = session.get(url, timeout=10, stream=True)
     resp.raise_for_status()
     content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()

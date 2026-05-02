@@ -201,7 +201,7 @@ export default function FriendshipList() {
       })
       .catch(onErr)
       .finally(() => setLoading(false))
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const ponyName = (id: number) => ponies.find((p) => p.id === id)?.name ?? id
 
