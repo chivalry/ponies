@@ -72,8 +72,8 @@ export const PonyCard = ({
     .filter((n): n is string => n !== undefined)
 
   return (
-    <Card>
-      <CardContent>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ flex: 1 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           {pony.image_path && (
             <Box sx={{ flexShrink: 0 }}>
