@@ -9,7 +9,13 @@ from werkzeug.utils import secure_filename
 
 from src_back.app import db
 from src_back.models import Hobby, Pony, PonyHobby
-from src_back.utils import allowed_file, bad_request, not_found, save_image_from_url
+from src_back.utils import (
+    allowed_file,
+    bad_request,
+    delete_upload,
+    not_found,
+    save_image_from_url,
+)
 
 pony_bp = Blueprint("pony", __name__, url_prefix="/api/ponies")
 
@@ -113,11 +119,15 @@ def update_pony(id):
             filename = secure_filename(f"{uuid.uuid4()}.{ext}")
             dest = os.path.join(upload_dir, filename)
             file.save(dest)
+            old_path = pony.image_path
             pony.image_path = f"uploads/{filename}"
+            delete_upload(old_path, upload_dir)
     elif image_url := (request.form.get("image_url") or data.get("image_url")):
         try:
             upload_dir = current_app.config["UPLOAD_FOLDER"]
+            old_path = pony.image_path
             pony.image_path = save_image_from_url(image_url, upload_dir)
+            delete_upload(old_path, upload_dir)
         except ValueError as e:
             return bad_request(str(e))
         except RequestException:
@@ -133,8 +143,11 @@ def delete_pony(id):
     pony = Pony.query.get(id)
     if not pony:
         return not_found("Pony", id)
+    image_path = pony.image_path
+    upload_dir = current_app.config["UPLOAD_FOLDER"]
     db.session.delete(pony)
     db.session.commit()
+    delete_upload(image_path, upload_dir)
     return "", 204
 
 

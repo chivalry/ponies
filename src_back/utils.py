@@ -77,6 +77,26 @@ def bad_request(msg):
     return jsonify({"error": msg}), 400
 
 
+def delete_upload(image_path: str, upload_folder: str) -> None:
+    """
+    Delete an uploaded image file from disk.
+
+    Does nothing if image_path is empty or the file no longer exists.
+
+    Args:
+        image_path (str): The relative image path stored on the model
+            (e.g., 'uploads/foo.png').
+        upload_folder (str): The directory where uploads are stored.
+    """
+    if not image_path:
+        return
+    filename = os.path.basename(image_path)
+    try:
+        os.remove(os.path.join(upload_folder, filename))
+    except FileNotFoundError:
+        pass
+
+
 def save_image_from_url(url, upload_dir):
     """
     Download an image from a URL, save it to upload_dir, and return the relative path.
