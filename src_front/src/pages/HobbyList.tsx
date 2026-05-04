@@ -159,12 +159,14 @@ export default function HobbyList() {
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
             fullWidth
+            error={editName.trim() === ''}
+            helperText={editName.trim() === '' ? 'Name is required.' : ' '}
             sx={{ mt: 1 }}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditTarget(null)}>Cancel</Button>
-          <Button onClick={handleEdit} variant="contained">
+          <Button onClick={handleEdit} variant="contained" disabled={editName.trim() === ''}>
             Save
           </Button>
         </DialogActions>
