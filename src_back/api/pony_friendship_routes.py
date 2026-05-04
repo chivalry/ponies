@@ -39,9 +39,9 @@ def create_pony_friendship():
         return bad_request("friendship_id is required")
     if not pony_id:
         return bad_request("pony_id is required")
-    if not Friendship.query.get(friendship_id):
+    if not db.session.get(Friendship, friendship_id):
         return not_found("Friendship", friendship_id)
-    if not Pony.query.get(pony_id):
+    if not db.session.get(Pony, pony_id):
         return not_found("Pony", pony_id)
     pf = PonyFriendship(friendship_id=friendship_id, pony_id=pony_id)
     db.session.add(pf)
@@ -60,7 +60,7 @@ def delete_pony_friendship(id):
     Returns:
         Response: Empty response with status 204 or 404 error.
     """
-    pf = PonyFriendship.query.get(id)
+    pf = db.session.get(PonyFriendship, id)
     if not pf:
         return not_found("PonyFriendship", id)
     db.session.delete(pf)

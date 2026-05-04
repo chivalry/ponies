@@ -51,7 +51,7 @@ def get_hobby(id):
     Returns:
         Response: Flask JSON response with the hobby or 404 error.
     """
-    hobby = Hobby.query.get(id)
+    hobby = db.session.get(Hobby, id)
     if not hobby:
         return not_found("Hobby", id)
     return jsonify(hobby.to_dict())
@@ -68,7 +68,7 @@ def update_hobby(id):
     Returns:
         Response: Flask JSON response with the updated hobby or 404 error.
     """
-    hobby = Hobby.query.get(id)
+    hobby = db.session.get(Hobby, id)
     if not hobby:
         return not_found("Hobby", id)
     data = request.get_json(silent=True) or {}
@@ -89,7 +89,7 @@ def delete_hobby(id):
     Returns:
         Response: Empty response with status 204 or 404 error.
     """
-    hobby = Hobby.query.get(id)
+    hobby = db.session.get(Hobby, id)
     if not hobby:
         return not_found("Hobby", id)
     db.session.delete(hobby)

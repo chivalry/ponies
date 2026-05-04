@@ -32,7 +32,7 @@ def create_generation():
 @generation_bp.route("/<int:id>/", methods=["GET"])
 def get_generation(id):
     """Return a generation by ID as JSON, or 404 if not found."""
-    generation = Generation.query.get(id)
+    generation = db.session.get(Generation, id)
     if not generation:
         return not_found("Generation", id)
     return jsonify(generation.to_dict())
@@ -41,7 +41,7 @@ def get_generation(id):
 @generation_bp.route("/<int:id>/", methods=["PUT"])
 def update_generation(id):
     """Update a generation's name by ID."""
-    generation = Generation.query.get(id)
+    generation = db.session.get(Generation, id)
     if not generation:
         return not_found("Generation", id)
     data = request.get_json(silent=True) or {}
@@ -54,7 +54,7 @@ def update_generation(id):
 @generation_bp.route("/<int:id>/", methods=["DELETE"])
 def delete_generation(id):
     """Delete a generation by ID. Ponies in this generation have generation_id nulled."""
-    generation = Generation.query.get(id)
+    generation = db.session.get(Generation, id)
     if not generation:
         return not_found("Generation", id)
     db.session.delete(generation)
@@ -65,7 +65,7 @@ def delete_generation(id):
 @generation_bp.route("/<int:id>/ponies/", methods=["GET"])
 def list_generation_ponies(id):
     """Return all ponies belonging to a generation."""
-    generation = Generation.query.get(id)
+    generation = db.session.get(Generation, id)
     if not generation:
         return not_found("Generation", id)
     sort = request.args.get("sort", "created_asc")

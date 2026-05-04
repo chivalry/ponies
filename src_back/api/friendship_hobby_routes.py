@@ -39,9 +39,9 @@ def create_friendship_hobby():
         return bad_request("friendship_id is required")
     if not hobby_id:
         return bad_request("hobby_id is required")
-    if not Friendship.query.get(friendship_id):
+    if not db.session.get(Friendship, friendship_id):
         return not_found("Friendship", friendship_id)
-    if not Hobby.query.get(hobby_id):
+    if not db.session.get(Hobby, hobby_id):
         return not_found("Hobby", hobby_id)
     existing = FriendshipHobby.query.filter_by(
         friendship_id=friendship_id, hobby_id=hobby_id
@@ -65,7 +65,7 @@ def get_friendship_hobby(id):
     Returns:
         Response: Flask JSON response with the assignment or 404 error.
     """
-    fh = FriendshipHobby.query.get(id)
+    fh = db.session.get(FriendshipHobby, id)
     if not fh:
         return not_found("FriendshipHobby", id)
     return jsonify(fh.to_dict())
@@ -82,12 +82,12 @@ def update_friendship_hobby(id):
     Returns:
         Response: Flask JSON response with the updated assignment or 404 error.
     """
-    fh = FriendshipHobby.query.get(id)
+    fh = db.session.get(FriendshipHobby, id)
     if not fh:
         return not_found("FriendshipHobby", id)
     data = request.get_json(silent=True) or {}
     if "hobby_id" in data:
-        if not Hobby.query.get(data["hobby_id"]):
+        if not db.session.get(Hobby, data["hobby_id"]):
             return not_found("Hobby", data["hobby_id"])
         fh.hobby_id = data["hobby_id"]
     db.session.commit()
@@ -105,7 +105,7 @@ def delete_friendship_hobby(id):
     Returns:
         Response: Empty response with status 204 or 404 error.
     """
-    fh = FriendshipHobby.query.get(id)
+    fh = db.session.get(FriendshipHobby, id)
     if not fh:
         return not_found("FriendshipHobby", id)
     db.session.delete(fh)
