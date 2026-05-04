@@ -68,7 +68,15 @@ def create_pony():
         except RequestException:
             return bad_request("Failed to download image from URL")
 
-    pony = Pony(name=name, image_path=image_path)
+    data = request.get_json(silent=True) or {}
+    raw_gen = (
+        request.form.get("generation_id")
+        if "generation_id" in request.form
+        else data.get("generation_id")
+    )
+    generation_id = int(raw_gen) if raw_gen else None
+
+    pony = Pony(name=name, image_path=image_path, generation_id=generation_id)
     db.session.add(pony)
     db.session.commit()
     return jsonify(pony.to_dict()), 201
