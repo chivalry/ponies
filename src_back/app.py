@@ -23,7 +23,8 @@ def create_app():
     """
     static_folder = os.path.abspath("dist/public")
     app = Flask(__name__, static_folder=static_folder, static_url_path="")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
+    db_url = os.environ.get("DATABASE_URL", "sqlite:///:memory:")
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     secret_key = os.environ.get("SECRET_KEY", "dev")
     is_dev = os.environ.get("FLASK_ENV") == "development"

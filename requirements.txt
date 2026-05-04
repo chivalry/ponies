@@ -7,7 +7,7 @@ python-dotenv
 gunicorn
 Pillow
 requests
-ruff
-pytest
+ruff==0.15.11
+pytest==9.0.3
 pytest-flask
 coverage
