@@ -1,3 +1,4 @@
+#!/bin/sh
 npm run db:backup
 git add backups/backup.sql
 git commit -m "chore: update db backup" --no-verify || true

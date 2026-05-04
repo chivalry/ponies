@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict sebeXqjgDY8ruTTSceeulQ9aoOwJxvkmnR4n1bZp5u0reHa19kkvKPUt1ByWJqb
+\restrict HPs8KMionEFubfejC7JRlJradKd7H32n7VbeoFTwub11UpM7jKVIMNzbSz2dC3L
 
 -- Dumped from database version 16.13 (Debian 16.13-1.pgdg13+1)
 -- Dumped by pg_dump version 16.13 (Debian 16.13-1.pgdg13+1)
@@ -176,5 +176,5 @@ SELECT pg_catalog.setval('public.pony_hobbies_id_seq', 42, true);
 -- PostgreSQL database dump complete
 --
 
-\unrestrict sebeXqjgDY8ruTTSceeulQ9aoOwJxvkmnR4n1bZp5u0reHa19kkvKPUt1ByWJqb
+\unrestrict HPs8KMionEFubfejC7JRlJradKd7H32n7VbeoFTwub11UpM7jKVIMNzbSz2dC3L
 
