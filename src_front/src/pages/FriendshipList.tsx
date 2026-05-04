@@ -122,8 +122,8 @@ const CreateFriendshipDialog = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>New Friendship</DialogTitle>
-      <DialogContent>
-        <FormControl size="small" sx={{ minWidth: 160, mb: 2 }}>
+      <DialogContent sx={{ pt: 1 }}>
+        <FormControl size="small" sx={{ minWidth: 160, mb: 2, mt: 1 }}>
           <InputLabel>Generation</InputLabel>
           <Select
             value={generationFilter}
