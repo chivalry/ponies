@@ -11,6 +11,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
   MenuItem,
   Select,
   Typography,
@@ -25,6 +27,7 @@ import {
   type PonyFriendship,
 } from '../api/friendships'
 import { listPonies, type Pony } from '../api/ponies'
+import { listGenerations, type Generation } from '../api/generations'
 import { listHobbies, type Hobby } from '../api/hobbies'
 import { useApiError } from '../hooks/useApiError'
 import { CircularImage } from '../components/CircularImage'
@@ -34,6 +37,7 @@ interface FriendshipCardProps {
   ponies: PonyFriendship[]
   ponyName: (id: number) => string | number
   ponyImage: (id: number) => string | null
+  ponyGeneration: (id: number) => string | null
   onDelete: (id: number) => void
   onAddHobby: (id: number) => void
 }
@@ -44,6 +48,7 @@ const FriendshipCard = ({
   ponies,
   ponyName,
   ponyImage,
+  ponyGeneration,
   onDelete,
   onAddHobby,
 }: FriendshipCardProps) => (
@@ -53,6 +58,7 @@ const FriendshipCard = ({
         {ponies.map((pf) => {
           const imgPath = ponyImage(pf.pony_id)
           const name = String(ponyName(pf.pony_id))
+          const gen = ponyGeneration(pf.pony_id)
           return (
             <Box
               key={pf.id}
@@ -65,6 +71,7 @@ const FriendshipCard = ({
             >
               {imgPath && <CircularImage src={`/${imgPath}`} alt={name} size={40} />}
               <Chip label={name} size="small" />
+              {gen && <Chip label={gen} size="small" color="secondary" />}
             </Box>
           )
         })}
@@ -84,6 +91,9 @@ const FriendshipCard = ({
 interface CreateFriendshipDialogProps {
   open: boolean
   ponies: Pony[]
+  generations: Generation[]
+  generationFilter: number | 'all'
+  onFilterChange: (val: number | 'all') => void
   selectedPonies: number[]
   disabledPonies: Set<number>
   onTogglePony: (id: number) => void
@@ -95,43 +105,71 @@ interface CreateFriendshipDialogProps {
 const CreateFriendshipDialog = ({
   open,
   ponies,
+  generations,
+  generationFilter,
+  onFilterChange,
   selectedPonies,
   disabledPonies,
   onTogglePony,
   onCreate,
   onClose,
-}: CreateFriendshipDialogProps) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle>New Friendship</DialogTitle>
-    <DialogContent>
-      <Typography variant="body2" sx={{ mb: 1 }}>
-        Select exactly 2 ponies:
-      </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-        {ponies.map((p) => (
-          <Chip
-            key={p.id}
-            label={p.name}
-            onClick={() => onTogglePony(p.id)}
-            color={selectedPonies.includes(p.id) ? 'primary' : 'default'}
-            clickable
-            disabled={disabledPonies.has(p.id)}
-          />
-        ))}
-      </Box>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose}>Cancel</Button>
-      <Button
-        onClick={onCreate}
-        variant="contained"
-        disabled={selectedPonies.length !== 2}
-      >
-        Create
-      </Button>
-    </DialogActions>
-  </Dialog>
-)
+}: CreateFriendshipDialogProps) => {
+  const visiblePonies =
+    generationFilter === 'all'
+      ? ponies
+      : ponies.filter((p) => p.generation_id === generationFilter)
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>New Friendship</DialogTitle>
+      <DialogContent>
+        <FormControl size="small" sx={{ minWidth: 160, mb: 2 }}>
+          <InputLabel>Generation</InputLabel>
+          <Select
+            value={generationFilter}
+            label="Generation"
+            onChange={(e) => onFilterChange(e.target.value as number | 'all')}
+          >
+            <MenuItem value="all">All Generations</MenuItem>
+            {generations.map((g) => (
+              <MenuItem key={g.id} value={g.id}>
+                {g.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Select exactly 2 ponies:
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          {visiblePonies.map((p) => {
+            const genName = generations.find((g) => g.id === p.generation_id)?.name
+            return (
+              <Chip
+                key={p.id}
+                label={genName ? `${p.name} (${genName})` : p.name}
+                onClick={() => onTogglePony(p.id)}
+                color={selectedPonies.includes(p.id) ? 'primary' : 'default'}
+                clickable
+                disabled={disabledPonies.has(p.id)}
+              />
+            )
+          })}
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={onCreate}
+          variant="contained"
+          disabled={selectedPonies.length !== 2}
+        >
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
 
 interface AssignHobbyDialogProps {
   open: boolean
@@ -183,21 +221,30 @@ export default function FriendshipList() {
   const [friendships, setFriendships] = useState<Friendship[]>([])
   const [ponyFriendships, setPonyFriendships] = useState<PonyFriendship[]>([])
   const [ponies, setPonies] = useState<Pony[]>([])
+  const [generations, setGenerations] = useState<Generation[]>([])
   const [hobbies, setHobbies] = useState<Hobby[]>([])
   const [createOpen, setCreateOpen] = useState(false)
   const [hobbyOpen, setHobbyOpen] = useState<number | null>(null)
   const [selectedPonies, setSelectedPonies] = useState<number[]>([])
+  const [generationFilter, setGenerationFilter] = useState<number | 'all'>('all')
   const [selectedHobby, setSelectedHobby] = useState<number | ''>('')
   const { error, onErr } = useApiError('Failed to load data.')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([listFriendships(), listPonyFriendships(), listPonies(), listHobbies()])
-      .then(([friendshipsRes, ponyFriendshipsRes, poniesRes, hobbiesRes]) => {
+    Promise.all([
+      listFriendships(),
+      listPonyFriendships(),
+      listPonies(),
+      listHobbies(),
+      listGenerations(),
+    ])
+      .then(([friendshipsRes, ponyFriendshipsRes, poniesRes, hobbiesRes, genRes]) => {
         setFriendships(friendshipsRes.data)
         setPonyFriendships(ponyFriendshipsRes.data)
         setPonies(poniesRes.data)
         setHobbies(hobbiesRes.data)
+        setGenerations(genRes.data)
       })
       .catch(onErr)
       .finally(() => setLoading(false))
@@ -206,6 +253,11 @@ export default function FriendshipList() {
   const ponyName = (id: number) => ponies.find((p) => p.id === id)?.name ?? id
 
   const ponyImage = (id: number) => ponies.find((p) => p.id === id)?.image_path ?? null
+
+  const ponyGeneration = (id: number) => {
+    const genId = ponies.find((p) => p.id === id)?.generation_id
+    return genId ? (generations.find((g) => g.id === genId)?.name ?? null) : null
+  }
 
   const friendshipPonies = (fid: number) =>
     ponyFriendships.filter((pf) => pf.friendship_id === fid)
@@ -295,6 +347,7 @@ export default function FriendshipList() {
               ponies={friendshipPonies(f.id)}
               ponyName={ponyName}
               ponyImage={ponyImage}
+              ponyGeneration={ponyGeneration}
               onDelete={handleDelete}
               onAddHobby={setHobbyOpen}
             />
@@ -304,6 +357,9 @@ export default function FriendshipList() {
       <CreateFriendshipDialog
         open={createOpen}
         ponies={ponies}
+        generations={generations}
+        generationFilter={generationFilter}
+        onFilterChange={setGenerationFilter}
         selectedPonies={selectedPonies}
         disabledPonies={disabledPonies}
         onTogglePony={togglePony}
