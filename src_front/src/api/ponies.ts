@@ -10,7 +10,10 @@ export interface Pony {
   modified_timestamp: string
 }
 
-export const listPonies = () => client.get<Pony[]>('/ponies/')
+export type PonySort = 'name_asc' | 'name_desc' | 'created_asc' | 'created_desc'
+
+export const listPonies = (sort?: PonySort) =>
+  client.get<Pony[]>('/ponies/', { params: sort ? { sort } : undefined })
 export const getPony = (id: number) => client.get<Pony>(`/ponies/${id}/`)
 export const createPony = (data: FormData) => client.post<Pony>('/ponies/', data)
 export const updatePony = (id: number, data: FormData) =>

@@ -68,5 +68,13 @@ def list_generation_ponies(id):
     generation = Generation.query.get(id)
     if not generation:
         return not_found("Generation", id)
-    ponies = Pony.query.filter_by(generation_id=id).all()
+    sort = request.args.get("sort", "created_asc")
+    order_map = {
+        "name_asc": Pony.name.asc(),
+        "name_desc": Pony.name.desc(),
+        "created_asc": Pony.created_timestamp.asc(),
+        "created_desc": Pony.created_timestamp.desc(),
+    }
+    order = order_map.get(sort, Pony.created_timestamp.asc())
+    ponies = Pony.query.filter_by(generation_id=id).order_by(order).all()
     return jsonify([p.to_dict() for p in ponies])

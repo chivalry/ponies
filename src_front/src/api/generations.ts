@@ -1,5 +1,5 @@
 import client from './client'
-import type { Pony } from './ponies'
+import type { Pony, PonySort } from './ponies'
 
 export interface Generation {
   id: number
@@ -15,5 +15,7 @@ export const createGeneration = (data: { name: string }) =>
 export const updateGeneration = (id: number, data: { name: string }) =>
   client.put<Generation>(`/generations/${id}/`, data)
 export const deleteGeneration = (id: number) => client.delete(`/generations/${id}/`)
-export const listGenerationPonies = (id: number) =>
-  client.get<Pony[]>(`/generations/${id}/ponies/`)
+export const listGenerationPonies = (id: number, sort?: PonySort) =>
+  client.get<Pony[]>(`/generations/${id}/ponies/`, {
+    params: sort ? { sort } : undefined,
+  })

@@ -12,7 +12,8 @@
         "format:py": ".venv/bin/ruff format src_back",
         "test": "vitest run",
         "test:watch": "vitest",
-        "prepare": "husky"
+        "prepare": "husky",
+        "db:backup": "mkdir -p backups && docker compose exec db pg_dump -U pony -d ponies --no-owner --no-acl --data-only --inserts --exclude-table=alembic_version -F p > backups/backup.sql && echo 'Backup saved.'"
     },
     "dependencies": {
         "@emotion/react": "^11.13.5",
