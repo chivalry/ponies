@@ -101,7 +101,7 @@ def get_pony(id):
     Returns:
         Response: Flask JSON response with the pony or 404 error.
     """
-    pony = Pony.query.get(id)
+    pony = db.session.get(Pony, id)
     if not pony:
         return not_found("Pony", id)
     return jsonify(pony.to_dict())
@@ -110,7 +110,7 @@ def get_pony(id):
 @pony_bp.route("/<int:id>/", methods=["PUT"])
 def update_pony(id):
     """Update a pony's name or image by ID."""
-    pony = Pony.query.get(id)
+    pony = db.session.get(Pony, id)
     if not pony:
         return not_found("Pony", id)
 
@@ -156,7 +156,7 @@ def update_pony(id):
 @pony_bp.route("/<int:id>/", methods=["DELETE"])
 def delete_pony(id):
     """Delete a pony by ID."""
-    pony = Pony.query.get(id)
+    pony = db.session.get(Pony, id)
     if not pony:
         return not_found("Pony", id)
     image_path = pony.image_path
@@ -170,7 +170,7 @@ def delete_pony(id):
 @pony_bp.route("/<int:id>/hobbies/", methods=["GET"])
 def list_pony_hobbies(id):
     """Return a list of hobbies for a given pony ID."""
-    pony = Pony.query.get(id)
+    pony = db.session.get(Pony, id)
     if not pony:
         return not_found("Pony", id)
     hobbies = Hobby.query.join(PonyHobby).filter(PonyHobby.pony_id == id).all()

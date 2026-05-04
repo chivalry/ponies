@@ -41,9 +41,9 @@ def create_pony_hobby():
         return bad_request("pony_id is required")
     if not hobby_id:
         return bad_request("hobby_id is required")
-    if not Pony.query.get(pony_id):
+    if not db.session.get(Pony, pony_id):
         return not_found("Pony", pony_id)
-    if not Hobby.query.get(hobby_id):
+    if not db.session.get(Hobby, hobby_id):
         return not_found("Hobby", hobby_id)
     existing = PonyHobby.query.filter_by(pony_id=pony_id, hobby_id=hobby_id).first()
     if existing:
@@ -65,7 +65,7 @@ def delete_pony_hobby(id):
     Returns:
         Response: Empty response with status 204 or 404 error.
     """
-    ph = PonyHobby.query.get(id)
+    ph = db.session.get(PonyHobby, id)
     if not ph:
         return not_found("PonyHobby", id)
     db.session.delete(ph)

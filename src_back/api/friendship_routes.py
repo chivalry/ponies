@@ -35,7 +35,7 @@ def create_friendship():
     if len(pony_ids) != 2:
         return bad_request("pony_ids must contain exactly 2 pony IDs")
     for pid in pony_ids:
-        if not Pony.query.get(pid):
+        if not db.session.get(Pony, pid):
             return not_found("Pony", pid)
     friendship = Friendship()
     db.session.add(friendship)
@@ -58,7 +58,7 @@ def get_friendship(id):
     Returns:
         Response: Flask JSON response with the friendship or 404 error.
     """
-    friendship = Friendship.query.get(id)
+    friendship = db.session.get(Friendship, id)
     if not friendship:
         return not_found("Friendship", id)
     return jsonify(friendship.to_dict())
@@ -89,7 +89,7 @@ def delete_friendship(id):
     Returns:
         Response: Empty response with status 204 or 404 error.
     """
-    friendship = Friendship.query.get(id)
+    friendship = db.session.get(Friendship, id)
     if not friendship:
         return not_found("Friendship", id)
     db.session.delete(friendship)
@@ -100,14 +100,14 @@ def delete_friendship(id):
 @friendship_bp.route("/<int:id>/hobbies/", methods=["POST"])
 def assign_hobby_to_friendship(id):
     """Assign a hobby to a friendship by ID."""
-    friendship = Friendship.query.get(id)
+    friendship = db.session.get(Friendship, id)
     if not friendship:
         return not_found("Friendship", id)
     data = request.get_json(silent=True) or {}
     hobby_id = data.get("hobby_id")
     if not hobby_id:
         return bad_request("hobby_id is required")
-    if not Hobby.query.get(hobby_id):
+    if not db.session.get(Hobby, hobby_id):
         return not_found("Hobby", hobby_id)
     fh = FriendshipHobby(friendship_id=friendship.id, hobby_id=hobby_id)
     db.session.add(fh)

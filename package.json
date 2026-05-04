@@ -13,7 +13,7 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "prepare": "husky",
-        "db:backup": "mkdir -p backups && docker compose exec db pg_dump -U pony -d ponies --no-owner --no-acl --data-only --inserts --exclude-table=alembic_version -F p > backups/backup.sql && echo 'Backup saved.'"
+        "db:backup": "scripts/db-backup.sh"
     },
     "dependencies": {
         "@emotion/react": "^11.13.5",
