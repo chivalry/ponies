@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Alert,
   Box,
@@ -26,6 +26,8 @@ const schema = Yup.object({
 export default function PonyForm() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const presetGenId = searchParams.get('generationId')
   const fileRef = useRef<HTMLInputElement>(null)
   const isEdit = Boolean(id)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -39,7 +41,11 @@ export default function PonyForm() {
   }, [])
 
   const formik = useFormik({
-    initialValues: { name: '', imageUrl: '', generationId: '' as number | '' },
+    initialValues: {
+      name: '',
+      imageUrl: '',
+      generationId: presetGenId ? Number(presetGenId) : ('' as number | ''),
+    },
     validationSchema: schema,
     onSubmit: async (values) => {
       setSubmitError(null)

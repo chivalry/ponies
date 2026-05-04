@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Alert, Box, CircularProgress, Typography } from '@mui/material'
+import { Link, useParams } from 'react-router-dom'
+import { Alert, Box, Button, CircularProgress, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { listGenerationPonies, type Generation } from '../api/generations'
 import { listGenerations } from '../api/generations'
@@ -71,9 +71,24 @@ export default function GenerationDetail() {
           {error}
         </Alert>
       )}
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        {generation?.name ?? 'Generation'}
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Typography variant="h4">{generation?.name ?? 'Generation'}</Typography>
+        <Button
+          variant="contained"
+          component={Link}
+          to={`/ponies/new?generationId=${generationId}`}
+          size="small"
+        >
+          Add Pony
+        </Button>
+      </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress />
