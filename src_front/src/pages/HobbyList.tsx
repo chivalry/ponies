@@ -16,7 +16,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { listHobbies, createHobby, deleteHobby, type Hobby } from '../api/hobbies'
+import {
+  listHobbies,
+  createHobby,
+  deleteHobby,
+  updateHobby,
+  type Hobby,
+} from '../api/hobbies'
 import { useApiError } from '../hooks/useApiError'
 
 /** Page listing all hobbies with options to create and delete them. */
@@ -25,6 +31,8 @@ export default function HobbyList() {
   const [open, setOpen] = useState(false)
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [name, setName] = useState('')
+  const [editTarget, setEditTarget] = useState<Hobby | null>(null)
+  const [editName, setEditName] = useState('')
   const { error, onErr } = useApiError('Failed to load hobbies.')
   const [loading, setLoading] = useState(true)
 
@@ -42,6 +50,23 @@ export default function HobbyList() {
       setHobbies((prev) => [...prev, r.data])
       setName('')
       setOpen(false)
+    } catch (err) {
+      onErr(err)
+    }
+  }
+
+  const openEdit = (h: Hobby) => {
+    setEditTarget(h)
+    setEditName(h.name)
+  }
+
+  const handleEdit = async () => {
+    if (!editTarget || !editName.trim()) return
+    try {
+      const r = await updateHobby(editTarget.id, { name: editName.trim() })
+      setHobbies((prev) => prev.map((h) => (h.id === r.data.id ? r.data : h)))
+      setEditTarget(null)
+      setEditName('')
     } catch (err) {
       onErr(err)
     }
@@ -95,6 +120,9 @@ export default function HobbyList() {
               <TableRow key={h.id}>
                 <TableCell>{h.name}</TableCell>
                 <TableCell>
+                  <Button size="small" onClick={() => openEdit(h)}>
+                    Edit
+                  </Button>
                   <Button size="small" color="error" onClick={() => setConfirmId(h.id)}>
                     Delete
                   </Button>
@@ -119,6 +147,27 @@ export default function HobbyList() {
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button onClick={handleCreate} variant="contained">
             Create
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editTarget !== null} onClose={() => setEditTarget(null)}>
+        <DialogTitle>Edit Hobby</DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <TextField
+            label="Name"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            fullWidth
+            error={editName.trim() === ''}
+            helperText={editName.trim() === '' ? 'Name is required.' : ' '}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditTarget(null)}>Cancel</Button>
+          <Button onClick={handleEdit} variant="contained" disabled={editName.trim() === ''}>
+            Save
           </Button>
         </DialogActions>
       </Dialog>
