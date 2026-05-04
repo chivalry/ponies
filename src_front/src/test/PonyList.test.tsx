@@ -5,10 +5,12 @@ import PonyList from '../pages/PonyList'
 import * as poniesApi from '../api/ponies'
 import * as friendshipsApi from '../api/friendships'
 import * as hobbiesApi from '../api/hobbies'
+import * as generationsApi from '../api/generations'
 
 vi.mock('../api/ponies')
 vi.mock('../api/friendships')
 vi.mock('../api/hobbies')
+vi.mock('../api/generations')
 
 const mockListPonies = vi.mocked(poniesApi.listPonies)
 const mockDeletePony = vi.mocked(poniesApi.deletePony)
@@ -31,6 +33,7 @@ beforeEach(() => {
   vi.mocked(friendshipsApi.listFriendshipHobbies).mockResolvedValue({ data: [] } as never)
   vi.mocked(hobbiesApi.listHobbies).mockResolvedValue({ data: [] } as never)
   vi.mocked(hobbiesApi.listPonyHobbies).mockResolvedValue({ data: [] } as never)
+  vi.mocked(generationsApi.listGenerations).mockResolvedValue({ data: [] } as never)
 })
 
 describe('PonyList', () => {

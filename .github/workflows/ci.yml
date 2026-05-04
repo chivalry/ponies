@@ -39,7 +39,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run lint -- --max-warnings -1
+      - run: npm run lint -- --max-warnings=0
       - run: npx prettier --check src_front/src
 
       - run: npm test -- --run

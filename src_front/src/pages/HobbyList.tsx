@@ -41,7 +41,7 @@ export default function HobbyList() {
       .then((r) => setHobbies(r.data))
       .catch(onErr)
       .finally(() => setLoading(false))
-  }, [])
+  }, [onErr])
 
   const handleCreate = async () => {
     if (!name) return
@@ -166,7 +166,11 @@ export default function HobbyList() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditTarget(null)}>Cancel</Button>
-          <Button onClick={handleEdit} variant="contained" disabled={editName.trim() === ''}>
+          <Button
+            onClick={handleEdit}
+            variant="contained"
+            disabled={editName.trim() === ''}
+          >
             Save
           </Button>
         </DialogActions>
