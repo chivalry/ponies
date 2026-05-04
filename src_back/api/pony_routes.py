@@ -28,7 +28,15 @@ def list_ponies():
     Returns:
         Response: Flask JSON response containing all ponies.
     """
-    ponies = Pony.query.all()
+    sort = request.args.get("sort", "created_asc")
+    order_map = {
+        "name_asc": Pony.name.asc(),
+        "name_desc": Pony.name.desc(),
+        "created_asc": Pony.created_timestamp.asc(),
+        "created_desc": Pony.created_timestamp.desc(),
+    }
+    order = order_map.get(sort, Pony.created_timestamp.asc())
+    ponies = Pony.query.order_by(order).all()
     return jsonify([p.to_dict() for p in ponies])
 
 
